@@ -2,13 +2,15 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Volume2, VolumeX } from "lucide-react";
 import gsap from "gsap";
+import { useCinematicBridge } from "@/lib/cinematic-bridge";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CONSTANTS
 // ─────────────────────────────────────────────────────────────────────────────
 /** Loader shows on EVERY page load / refresh — no storage gate */
-const INTRO_DURATION_MS = 5000; // exact 5 seconds visible
+const INTRO_DURATION_MS = 10000; // 10 seconds visible
 const VIDEO_SRC = "/videos/aventador-svj-loading.mp4";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -19,13 +21,18 @@ export function CinematicLoader() {
   const [isVisible, setIsVisible] = useState(true);
   const [isExiting, setIsExiting] = useState(false);
   const [speedValue, setSpeedValue] = useState(0);
+  const [isMuted, setIsMuted] = useState(true); // optimistic — updated after autoplay attempt
 
-  // ── Refs ───────────────────────────────────────────────────────────────────
+  // ── Bridge ──────────────────────────────────────────────────────────────────
+  const { signalLoaderExiting } = useCinematicBridge();
+
+  // ── Refs ──────────────────────────────────────────────────────────────────
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const brandingRef = useRef<HTMLDivElement>(null);
   const metricsRef = useRef<HTMLDivElement>(null);
   const gaugeRef = useRef<HTMLDivElement>(null);
+  const sweepRef = useRef<HTMLDivElement>(null);   // headlight sweep overlay
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const gsapCtx = useRef<gsap.Context | null>(null);
   const hasDismissed = useRef(false);
@@ -37,12 +44,44 @@ export function CinematicLoader() {
 
     gsapCtx.current?.kill();
 
+    // ── Signal the hero to begin its cinematic entrance immediately ──────────
+    signalLoaderExiting();
+
+    // ── Headlight sweep — a horizontal light beam sweeps L→R just before exit ──
+    if (sweepRef.current) {
+      gsap.fromTo(
+        sweepRef.current,
+        { x: "-110%", opacity: 0 },
+        {
+          x: "110%",
+          opacity: 1,
+          duration: 1.1,
+          ease: "power2.inOut",
+        }
+      );
+    }
+
+    // ── Fade out audio gracefully ───────────────────────────────────────
+    const video = videoRef.current;
+    if (video && !video.muted && video.volume > 0) {
+      const fadeAudio = setInterval(() => {
+        if (video.volume > 0.05) {
+          video.volume = Math.max(0, video.volume - 0.08);
+        } else {
+          video.volume = 0;
+          video.muted = true;
+          clearInterval(fadeAudio);
+        }
+      }, 60);
+    }
+
     // Restore scroll
     document.body.style.overflow = "";
     document.body.style.height = "";
 
-    setIsExiting(true);
-  }, []);
+    // Short delay so the sweep plays, then begin visual fade out
+    setTimeout(() => setIsExiting(true), 400);
+  }, [signalLoaderExiting]);
 
   // ── Mount: always show on every page load ──────────────────────────────────
   useEffect(() => {
@@ -50,37 +89,44 @@ export function CinematicLoader() {
     document.body.style.overflow = "hidden";
     document.body.style.height = "100vh";
 
-    // Start video immediately — no poster so there's no silver placeholder frame
-    if (videoRef.current) {
-      videoRef.current.load();
-      videoRef.current.play().catch(() => {
-        // Autoplay blocked (mobile) — still dismiss after 5s
-      });
+    const video = videoRef.current;
+
+    // ── Start video immediately with audio; fall back to muted if blocked ──
+    if (video) {
+      video.muted = false;   // attempt with sound
+      video.volume = 0.85;
+      video.load();
+
+      video.play()
+        .then(() => {
+          // Sound autoplay succeeded
+          setIsMuted(false);
+        })
+        .catch(() => {
+          // Browser blocked audio autoplay — retry muted
+          video.muted = true;
+          setIsMuted(true);
+          video.play().catch(() => {});
+        });
     }
 
-    // ── Build GSAP choreography ────────────────────────────────────────────
+    // ── Build GSAP choreography — runs immediately on mount ───────────────
     gsapCtx.current = gsap.context(() => {
       const tl = gsap.timeline();
 
-      // Initial invisible state
+      // Initial invisible state for HUD elements
       gsap.set([brandingRef.current, metricsRef.current, gaugeRef.current], {
         opacity: 0,
         willChange: "opacity, transform",
       });
-      if (videoRef.current) {
-        gsap.set(videoRef.current, {
-          scale: 1.08,
-          opacity: 0,
-          willChange: "opacity, transform",
-        });
-      }
 
-      // Phase 1 — Video fade in + subtle scale to 1
-      if (videoRef.current) {
-        tl.to(videoRef.current, {
+      // Phase 1 — Video fade in immediately (0.8s) + subtle scale to 1
+      if (video) {
+        gsap.set(video, { scale: 1.08, willChange: "opacity, transform" });
+        tl.to(video, {
           opacity: 0.82,
           scale: 1,
-          duration: 1.4,
+          duration: 0.8,
           ease: "power2.out",
         });
       }
@@ -89,7 +135,7 @@ export function CinematicLoader() {
       tl.to(
         brandingRef.current,
         { opacity: 1, y: 0, duration: 1.0, ease: "power3.out" },
-        "-=0.9"
+        "-=0.5"
       );
 
       // Phase 3 — Metrics + gauge
@@ -102,22 +148,42 @@ export function CinematicLoader() {
         )
         .to(gaugeRef.current, { opacity: 1, duration: 0.5 }, "-=0.7");
 
-      // Speedometer count-up (0 → 240 over ~4.5s)
+      // Speedometer count-up with realistic automotive physics (bursts + fluctuations)
       const speedObj = { v: 0 };
-      gsap.to(speedObj, {
-        v: 240,
-        duration: 4.5,
-        ease: "power2.inOut",
-        onUpdate() {
-          setSpeedValue(Math.round(speedObj.v));
-        },
+      const speedTimeline = gsap.timeline();
+
+      // Start: Initial acceleration
+      speedTimeline.to(speedObj, {
+        v: 120,
+        duration: 3,
+        ease: "power2.in",
+        onUpdate() { setSpeedValue(Math.round(speedObj.v)); }
       });
 
-      // Subtle branding drift upward
-      gsap.to(brandingRef.current, { y: -18, duration: 5, ease: "none" });
+      // Mid-phase: High speed push with subtle fluctuation
+      speedTimeline.to(speedObj, {
+        v: 280,
+        duration: 4,
+        ease: "none",
+        onUpdate() {
+          const jitter = Math.sin(Date.now() * 0.01) * 0.5;
+          setSpeedValue(Math.round(speedObj.v + jitter));
+        }
+      });
+
+      // Peak: Final burst before transition
+      speedTimeline.to(speedObj, {
+        v: 340,
+        duration: 2,
+        ease: "power4.out",
+        onUpdate() { setSpeedValue(Math.round(speedObj.v)); }
+      });
+
+      // Subtle branding drift upward over full 10s
+      gsap.to(brandingRef.current, { y: -24, duration: 10, ease: "none" });
     });
 
-    // ── Exact 5-second dismiss timer ──────────────────────────────────────
+    // ── 10-second dismiss timer ────────────────────────────────────────────
     timerRef.current = setTimeout(dismiss, INTRO_DURATION_MS);
 
     return () => {
@@ -142,7 +208,7 @@ export function CinematicLoader() {
           ref={containerRef}
           className="fixed inset-0 z-[9999] overflow-hidden select-none"
           style={{
-            backgroundColor: "#0A0A0A", // Dark background so there's no flash before video loads
+            backgroundColor: "#F2F0ED", // matches hero overlay — zero flash on transition
             willChange: "opacity",
             transform: "translateZ(0)",
           }}
@@ -155,11 +221,20 @@ export function CinematicLoader() {
             },
           }}
         >
-          {/* ── Fullscreen Video — NO poster so silver placeholder never shows ── */}
+          {/* ── Headlight sweep overlay — fires during exit ──────────────────── */}
+          <div
+            ref={sweepRef}
+            className="absolute inset-0 pointer-events-none z-30"
+            style={{
+              opacity: 0,
+              background:
+                "linear-gradient(105deg, transparent 0%, rgba(255,255,255,0.0) 30%, rgba(255,255,255,0.55) 50%, rgba(255,248,230,0.35) 60%, transparent 100%)",
+              willChange: "transform, opacity",
+            }}
+          />
           <video
             ref={videoRef}
             src={VIDEO_SRC}
-            muted
             playsInline
             loop
             preload="auto"
@@ -272,42 +347,115 @@ export function CinematicLoader() {
             />
           </div>
 
-          {/* ── Right: Speedometer ────────────────────────────────────────── */}
+          {/* ── Right: Futuristic Telemetry HUD ────────────────────────────────── */}
           <div
             ref={gaugeRef}
-            className="absolute bottom-10 right-6 md:bottom-12 md:right-12 flex flex-col items-end z-10"
+            className="absolute bottom-8 right-8 md:bottom-12 md:right-12 flex flex-col items-end z-10 w-[240px] md:w-[320px]"
             style={{ opacity: 0 }}
           >
-            <motion.div
-              className="text-5xl md:text-7xl font-extralight leading-none text-[#0A0A0A] tracking-tighter tabular-nums"
-              style={{ textShadow: "0 0 24px rgba(0,0,0,0.08)", willChange: "transform" }}
-              animate={
-                speedValue > 215
-                  ? { x: [-0.6, 0.6, -0.6], transition: { repeat: Infinity, duration: 0.06 } }
-                  : {}
-              }
-            >
-              {speedValue}
-            </motion.div>
+            {/* ── Main SVG Telemetry Gauge ── */}
+            <div className="relative w-full aspect-square flex items-center justify-center">
+              <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-2xl">
+                {/* Outer Ring — subtle rotation */}
+                <motion.circle
+                  cx="100" cy="100" r="95"
+                  fill="none" stroke="black" strokeWidth="0.5" strokeOpacity="0.05"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                />
 
-            <div className="flex items-center gap-2 mt-1.5">
-              <div
-                className="w-12 h-px"
-                style={{ background: "linear-gradient(90deg, transparent, rgba(0,0,0,0.35))" }}
-              />
-              <span className="text-[9px] tracking-[0.4em] text-black/45 font-bold uppercase">
-                KM/H
-              </span>
-            </div>
+                {/* Tick Marks Ring */}
+                <g opacity="0.1">
+                  {Array.from({ length: 40 }).map((_, i) => (
+                    <line
+                      key={i}
+                      x1="100" y1="10" x2="100" y2="16"
+                      stroke="black" strokeWidth="1"
+                      transform={`rotate(${i * 9} 100 100)`}
+                    />
+                  ))}
+                </g>
 
-            {/* HUD arc */}
-            <div className="absolute -bottom-5 -right-5 w-28 h-28 border-r border-b border-black/10 rounded-full pointer-events-none">
+                {/* Performance Progress Arc — reactive to speedValue */}
+                <motion.circle
+                  cx="100" cy="100" r="88"
+                  fill="none" stroke="black" strokeWidth="2.5"
+                  strokeDasharray="552.92"
+                  strokeDashoffset={552.92 - (552.92 * (speedValue / 400))}
+                  strokeLinecap="round"
+                  opacity={0.4 + (speedValue / 340) * 0.4}
+                  style={{ transform: "rotate(-90deg)", transformOrigin: "center" }}
+                />
+
+                {/* Internal HUD elements */}
+                <circle cx="100" cy="100" r="70" fill="none" stroke="black" strokeWidth="0.2" strokeOpacity="0.1" />
+                <circle cx="100" cy="100" r="50" fill="none" stroke="black" strokeWidth="0.2" strokeOpacity="0.1" />
+              </svg>
+
+              {/* Speed Value — Kinetic Centerpiece */}
+              <div className="absolute flex flex-col items-center">
+                <motion.div
+                  className="text-6xl md:text-8xl font-extralight leading-none text-[#0A0A0A] tracking-tighter tabular-nums"
+                  style={{ willChange: "transform, opacity" }}
+                  animate={
+                    speedValue > 280
+                      ? {
+                          x: [Math.random() * -1, Math.random() * 1, 0],
+                          scale: [1, 1.02, 1],
+                          transition: { repeat: Infinity, duration: 0.05 }
+                        }
+                      : {}
+                  }
+                >
+                  {speedValue}
+                </motion.div>
+
+                <div className="flex items-center gap-2 -mt-2">
+                  <div className="w-8 md:w-12 h-px bg-gradient-to-r from-transparent via-black/20 to-transparent" />
+                  <span className="text-[8px] md:text-[10px] tracking-[0.4em] text-black/40 font-black uppercase">
+                    KM/H
+                  </span>
+                  <div className="w-8 md:w-12 h-px bg-gradient-to-r from-transparent via-black/20 to-transparent" />
+                </div>
+              </div>
+
+              {/* Rotating Telemetry Markers */}
               <motion.div
-                className="absolute inset-0 border-r border-b border-black/15 rounded-full"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-0 border-[0.5px] border-black/5 rounded-full"
+                animate={{ rotate: -360 }}
+                transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
               />
             </div>
+
+            {/* ── Sub-metrics: Peripheral Performance Status ── */}
+            <div className="w-full grid grid-cols-2 gap-x-8 gap-y-2 mt-6 px-4">
+              {[
+                { label: "AWD ACTIVE", active: true },
+                { label: "PERFORMANCE MODE", active: speedValue > 200 },
+                { label: "TELEMETRY SYNC", active: true },
+                { label: "BOOST READY", active: speedValue > 300 }
+              ].map((m, i) => (
+                <div key={i} className="flex flex-col gap-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[7px] md:text-[8px] tracking-[0.2em] text-black/30 font-bold uppercase">{m.label}</span>
+                    <div className={`w-1 h-1 rounded-full transition-colors duration-500 ${m.active ? "bg-black/60 shadow-[0_0_8px_rgba(0,0,0,0.2)]" : "bg-black/10"}`} />
+                  </div>
+                  <div className="h-[1px] w-full bg-black/[0.04] relative overflow-hidden">
+                    {m.active && (
+                      <motion.div
+                        className="absolute inset-0 bg-black/20"
+                        initial={{ x: "-100%" }}
+                        animate={{ x: "100%" }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "linear", delay: i * 0.5 }}
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* ── HUD Corner Accents ── */}
+            <div className="absolute -bottom-4 -right-4 w-32 h-32 border-r-[0.5px] border-b-[0.5px] border-black/10 rounded-br-2xl pointer-events-none" />
           </div>
 
           {/* ── Top-left brand mark ───────────────────────────────────────── */}
@@ -317,12 +465,42 @@ export function CinematicLoader() {
             </p>
           </div>
 
-          {/* ── Top-right session tag ─────────────────────────────────────── */}
-          <div className="absolute top-7 right-7 md:top-10 md:right-12 pointer-events-none flex items-center gap-2">
-            <div className="w-1 h-1 rounded-full bg-black/30 animate-pulse" />
-            <p className="text-[8px] md:text-[9px] tracking-[0.3em] text-black/35 font-semibold uppercase">
-              BOOT SEQUENCE
-            </p>
+          {/* ── Top-right: session tag + sound toggle ─────────────────────── */}
+          <div className="absolute top-7 right-7 md:top-10 md:right-12 flex items-center gap-4">
+            {/* Sound toggle — interactive */}
+            <button
+              onClick={() => {
+                const video = videoRef.current;
+                if (!video) return;
+                if (isMuted) {
+                  video.muted = false;
+                  video.volume = 0.85;
+                  setIsMuted(false);
+                } else {
+                  video.muted = true;
+                  setIsMuted(true);
+                }
+              }}
+              className="flex items-center gap-1.5 group cursor-pointer"
+              aria-label={isMuted ? "Unmute" : "Mute"}
+            >
+              {isMuted ? (
+                <VolumeX className="w-3.5 h-3.5 text-black/35 group-hover:text-black/60 transition-colors" />
+              ) : (
+                <Volume2 className="w-3.5 h-3.5 text-black/60 group-hover:text-black/80 transition-colors" />
+              )}
+              <span className="text-[8px] md:text-[9px] tracking-[0.3em] text-black/35 group-hover:text-black/55 font-semibold uppercase transition-colors">
+                {isMuted ? "SOUND OFF" : "SOUND ON"}
+              </span>
+            </button>
+
+            {/* Session tag */}
+            <div className="pointer-events-none flex items-center gap-2">
+              <div className="w-1 h-1 rounded-full bg-black/30 animate-pulse" />
+              <p className="text-[8px] md:text-[9px] tracking-[0.3em] text-black/35 font-semibold uppercase">
+                BOOT SEQUENCE
+              </p>
+            </div>
           </div>
         </motion.div>
       )}
