@@ -17,8 +17,8 @@ build/
 .env.production.local
 
 # Databases
-*.db
-*.db-journal
+# *.db
+# *.db-journal
 
 # IDEs
 .vscode/
