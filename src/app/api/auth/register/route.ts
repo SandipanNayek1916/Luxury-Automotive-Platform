@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+export const dynamic = "force-dynamic";
 
 const registerSchema = z.object({
   name: z.string().min(2),

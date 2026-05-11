@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 import { z } from "zod";
+export const dynamic = "force-dynamic";
 
 const brandQuerySchema = z.object({
   category: z.string().optional(),
