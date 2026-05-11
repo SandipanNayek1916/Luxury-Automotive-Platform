@@ -3,8 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 export const dynamic = "force-dynamic";
- 
-export const dynamic = "force-dynamic";
+export const revalidate = 0;
 import { carQuerySchema, carCreateSchema } from "@/lib/validations";
 import { rateLimit } from "@/lib/rate-limit";
 
