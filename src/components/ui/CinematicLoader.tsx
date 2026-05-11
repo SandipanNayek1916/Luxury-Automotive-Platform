@@ -7,21 +7,16 @@ import gsap from "gsap";
 // ─────────────────────────────────────────────────────────────────────────────
 // CONSTANTS
 // ─────────────────────────────────────────────────────────────────────────────
-/** localStorage key — persists across ALL sessions so intro shows exactly once ever */
-const STORAGE_KEY = "unique_intro_played_v1";
-/** Total intro display time before exit animation begins (video plays ≥5 real seconds) */
-const INTRO_DURATION_MS = 5500;
-/** Minimum guaranteed video playback in ms before we allow dismiss */
-const MIN_VIDEO_MS = 5000;
+/** Loader shows on EVERY page load / refresh — no storage gate */
+const INTRO_DURATION_MS = 5000; // exact 5 seconds visible
 const VIDEO_SRC = "/videos/aventador-svj-loading.mp4";
-const VIDEO_POSTER = "/images/hypercar_silhouette.png";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // COMPONENT
 // ─────────────────────────────────────────────────────────────────────────────
 export function CinematicLoader() {
   // ── State ──────────────────────────────────────────────────────────────────
-  const [shouldShow, setShouldShow] = useState<boolean | null>(null); // null = not yet determined
+  const [isVisible, setIsVisible] = useState(true);
   const [isExiting, setIsExiting] = useState(false);
   const [speedValue, setSpeedValue] = useState(0);
 
@@ -34,77 +29,36 @@ export function CinematicLoader() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const gsapCtx = useRef<gsap.Context | null>(null);
   const hasDismissed = useRef(false);
-  /** Timestamp (ms) when video actually started playing — for MIN_VIDEO_MS guard */
-  const videoStartedAt = useRef<number | null>(null);
 
   // ── Dismiss handler ────────────────────────────────────────────────────────
   const dismiss = useCallback(() => {
-    // Guard: only run once
     if (hasDismissed.current) return;
-
-    // Enforce minimum video play time — if video hasn't played 5s yet, delay
-    const elapsed = videoStartedAt.current != null
-      ? Date.now() - videoStartedAt.current
-      : MIN_VIDEO_MS;
-
-    if (elapsed < MIN_VIDEO_MS) {
-      const remaining = MIN_VIDEO_MS - elapsed;
-      setTimeout(dismiss, remaining);
-      return;
-    }
-
     hasDismissed.current = true;
 
-    // Mark in localStorage — persists across ALL browser sessions so intro shows exactly once
-    try { localStorage.setItem(STORAGE_KEY, "1"); } catch {}
-
-    // Kill all GSAP animations cleanly
     gsapCtx.current?.kill();
 
-    // Restore scroll before framer exit animation starts
+    // Restore scroll
     document.body.style.overflow = "";
     document.body.style.height = "";
 
     setIsExiting(true);
   }, []);
 
-  // ── Mount: check localStorage (once-ever gate) ─────────────────────────────
+  // ── Mount: always show on every page load ──────────────────────────────────
   useEffect(() => {
-    let alreadyPlayed = false;
-    try { alreadyPlayed = localStorage.getItem(STORAGE_KEY) === "1"; } catch {}
-
-    if (alreadyPlayed) {
-      // Skip loader entirely — never block the page on repeat visits
-      setShouldShow(false);
-      return;
-    }
-
-    setShouldShow(true);
-    // Lock body scroll only during actual first-time intro
+    // Lock scroll while loader is visible
     document.body.style.overflow = "hidden";
     document.body.style.height = "100vh";
-  }, []); // ← empty deps: runs exactly ONCE per mount
 
-  // ── GSAP Animation (only when shouldShow becomes true) ────────────────────
-  useEffect(() => {
-    if (shouldShow !== true) return;
-    if (!brandingRef.current || !metricsRef.current || !gaugeRef.current) return;
-
-    // ── Video preload + play-time tracking ────────────────────────────────
+    // Start video immediately — no poster so there's no silver placeholder frame
     if (videoRef.current) {
       videoRef.current.load();
-      videoRef.current.play()
-        .then(() => {
-          // Record the moment video actually starts so MIN_VIDEO_MS guard is accurate
-          videoStartedAt.current = Date.now();
-        })
-        .catch(() => {
-          // Autoplay blocked — treat as if video started right now so timer still fires
-          videoStartedAt.current = Date.now();
-        });
+      videoRef.current.play().catch(() => {
+        // Autoplay blocked (mobile) — still dismiss after 5s
+      });
     }
 
-    // ── Build GSAP context (scoped, auto-cleanup) ──────────────────────────
+    // ── Build GSAP choreography ────────────────────────────────────────────
     gsapCtx.current = gsap.context(() => {
       const tl = gsap.timeline();
 
@@ -114,7 +68,11 @@ export function CinematicLoader() {
         willChange: "opacity, transform",
       });
       if (videoRef.current) {
-        gsap.set(videoRef.current, { scale: 1.08, opacity: 0, willChange: "opacity, transform" });
+        gsap.set(videoRef.current, {
+          scale: 1.08,
+          opacity: 0,
+          willChange: "opacity, transform",
+        });
       }
 
       // Phase 1 — Video fade in + subtle scale to 1
@@ -122,7 +80,7 @@ export function CinematicLoader() {
         tl.to(videoRef.current, {
           opacity: 0.82,
           scale: 1,
-          duration: 1.6,
+          duration: 1.4,
           ease: "power2.out",
         });
       }
@@ -131,7 +89,7 @@ export function CinematicLoader() {
       tl.to(
         brandingRef.current,
         { opacity: 1, y: 0, duration: 1.0, ease: "power3.out" },
-        "-=1.0"
+        "-=0.9"
       );
 
       // Phase 3 — Metrics + gauge
@@ -144,63 +102,63 @@ export function CinematicLoader() {
         )
         .to(gaugeRef.current, { opacity: 1, duration: 0.5 }, "-=0.7");
 
-      // Speedometer count-up animation (0 → 240 over 4s)
+      // Speedometer count-up (0 → 240 over ~4.5s)
       const speedObj = { v: 0 };
       gsap.to(speedObj, {
         v: 240,
-        duration: 4.2,
+        duration: 4.5,
         ease: "power2.inOut",
         onUpdate() {
           setSpeedValue(Math.round(speedObj.v));
         },
       });
 
-      // Subtle branding drift
+      // Subtle branding drift upward
       gsap.to(brandingRef.current, { y: -18, duration: 5, ease: "none" });
     });
 
-    // ── Exact 5-second timer ──────────────────────────────────────────────
+    // ── Exact 5-second dismiss timer ──────────────────────────────────────
     timerRef.current = setTimeout(dismiss, INTRO_DURATION_MS);
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
       gsapCtx.current?.kill();
+      // Safety: restore scroll on unmount
+      document.body.style.overflow = "";
+      document.body.style.height = "";
     };
-  }, [shouldShow, dismiss]);
+  }, [dismiss]);
 
   // ─────────────────────────────────────────────────────────────────────────
   // RENDER
   // ─────────────────────────────────────────────────────────────────────────
-
-  // Don't render anything until we've determined if it should show
-  if (shouldShow === null || shouldShow === false) return null;
+  if (!isVisible) return null;
 
   return (
-    <AnimatePresence mode="wait" onExitComplete={() => setShouldShow(false)}>
+    <AnimatePresence mode="wait" onExitComplete={() => setIsVisible(false)}>
       {!isExiting && (
         <motion.div
           key="cinematic-intro"
           ref={containerRef}
           className="fixed inset-0 z-[9999] overflow-hidden select-none"
           style={{
-            backgroundColor: "#F2F0ED",
-            willChange: "opacity, filter",
-            transform: "translateZ(0)", // GPU layer
+            backgroundColor: "#0A0A0A", // Dark background so there's no flash before video loads
+            willChange: "opacity",
+            transform: "translateZ(0)",
           }}
           initial={{ opacity: 1 }}
           exit={{
             opacity: 0,
             transition: {
-              duration: 1.4,
+              duration: 1.2,
               ease: [0.16, 1, 0.3, 1],
             },
           }}
         >
-          {/* ── Fullscreen Video ─────────────────────────────────────── */}
+          {/* ── Fullscreen Video — NO poster so silver placeholder never shows ── */}
           <video
             ref={videoRef}
             src={VIDEO_SRC}
-            poster={VIDEO_POSTER}
             muted
             playsInline
             loop
@@ -213,12 +171,12 @@ export function CinematicLoader() {
             }}
           />
 
-          {/* ── Cinematic gradient overlays ──────────────────────────── */}
+          {/* ── Cinematic gradient overlays ──────────────────────────────── */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
               background:
-                "linear-gradient(to bottom, rgba(242,240,237,0.78) 0%, rgba(242,240,237,0.0) 40%, rgba(242,240,237,0.85) 100%)",
+                "linear-gradient(to bottom, rgba(242,240,237,0.72) 0%, rgba(242,240,237,0.0) 38%, rgba(242,240,237,0.82) 100%)",
             }}
           />
           {/* Side vignette */}
@@ -226,11 +184,11 @@ export function CinematicLoader() {
             className="absolute inset-0 pointer-events-none"
             style={{
               background:
-                "radial-gradient(ellipse at center, transparent 40%, rgba(242,240,237,0.55) 100%)",
+                "radial-gradient(ellipse at center, transparent 38%, rgba(242,240,237,0.50) 100%)",
             }}
           />
 
-          {/* ── Subtle grid ──────────────────────────────────────────── */}
+          {/* ── Subtle grid ──────────────────────────────────────────────── */}
           <div
             className="absolute inset-0 pointer-events-none opacity-30"
             style={{
@@ -244,15 +202,13 @@ export function CinematicLoader() {
             }}
           />
 
-          {/* ── Center Branding ──────────────────────────────────────── */}
+          {/* ── Center Branding ──────────────────────────────────────────── */}
           <div
             ref={brandingRef}
             className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-6"
             style={{ opacity: 0, transform: "translateY(28px) translateZ(0)" }}
           >
-            <p
-              className="text-black/60 tracking-[0.5em] text-[9px] sm:text-[10px] font-semibold uppercase mb-5"
-            >
+            <p className="text-black/60 tracking-[0.5em] text-[9px] sm:text-[10px] font-semibold uppercase mb-5">
               PREMIUM MOBILITY EXPERIENCE
             </p>
 
@@ -272,7 +228,7 @@ export function CinematicLoader() {
               <div className="w-10 h-px bg-black/15" />
             </div>
 
-            {/* Progress bar — Framer Motion drives this independently */}
+            {/* Progress bar — fills exactly over INTRO_DURATION_MS */}
             <div className="w-48 sm:w-64 h-px bg-black/10 relative overflow-hidden rounded-full">
               <motion.div
                 className="absolute inset-y-0 left-0 bg-black/70 rounded-full"
@@ -283,7 +239,7 @@ export function CinematicLoader() {
             </div>
           </div>
 
-          {/* ── Left: System Metrics ─────────────────────────────────── */}
+          {/* ── Left: System Metrics ──────────────────────────────────────── */}
           <div
             ref={metricsRef}
             className="absolute left-6 md:left-12 top-1/2 -translate-y-1/2 hidden sm:flex flex-col gap-5 z-10"
@@ -316,7 +272,7 @@ export function CinematicLoader() {
             />
           </div>
 
-          {/* ── Right: Speedometer ───────────────────────────────────── */}
+          {/* ── Right: Speedometer ────────────────────────────────────────── */}
           <div
             ref={gaugeRef}
             className="absolute bottom-10 right-6 md:bottom-12 md:right-12 flex flex-col items-end z-10"
@@ -354,14 +310,14 @@ export function CinematicLoader() {
             </div>
           </div>
 
-          {/* ── Top-left brand mark ──────────────────────────────────── */}
+          {/* ── Top-left brand mark ───────────────────────────────────────── */}
           <div className="absolute top-7 left-7 md:top-10 md:left-12 pointer-events-none">
             <p className="text-[8px] md:text-[9px] tracking-[0.4em] text-black/35 font-semibold uppercase">
               UNIQUE ™
             </p>
           </div>
 
-          {/* ── Top-right session tag ────────────────────────────────── */}
+          {/* ── Top-right session tag ─────────────────────────────────────── */}
           <div className="absolute top-7 right-7 md:top-10 md:right-12 pointer-events-none flex items-center gap-2">
             <div className="w-1 h-1 rounded-full bg-black/30 animate-pulse" />
             <p className="text-[8px] md:text-[9px] tracking-[0.3em] text-black/35 font-semibold uppercase">
