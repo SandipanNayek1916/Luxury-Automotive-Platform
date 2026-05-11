@@ -7,8 +7,12 @@ import gsap from "gsap";
 // ─────────────────────────────────────────────────────────────────────────────
 // CONSTANTS
 // ─────────────────────────────────────────────────────────────────────────────
-const SESSION_KEY = "unique_intro_played";
-const INTRO_DURATION_MS = 5000; // exact 5 seconds
+/** localStorage key — persists across ALL sessions so intro shows exactly once ever */
+const STORAGE_KEY = "unique_intro_played_v1";
+/** Total intro display time before exit animation begins (video plays ≥5 real seconds) */
+const INTRO_DURATION_MS = 5500;
+/** Minimum guaranteed video playback in ms before we allow dismiss */
+const MIN_VIDEO_MS = 5000;
 const VIDEO_SRC = "/videos/aventador-svj-loading.mp4";
 const VIDEO_POSTER = "/images/hypercar_silhouette.png";
 
@@ -30,15 +34,29 @@ export function CinematicLoader() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const gsapCtx = useRef<gsap.Context | null>(null);
   const hasDismissed = useRef(false);
+  /** Timestamp (ms) when video actually started playing — for MIN_VIDEO_MS guard */
+  const videoStartedAt = useRef<number | null>(null);
 
   // ── Dismiss handler ────────────────────────────────────────────────────────
   const dismiss = useCallback(() => {
     // Guard: only run once
     if (hasDismissed.current) return;
+
+    // Enforce minimum video play time — if video hasn't played 5s yet, delay
+    const elapsed = videoStartedAt.current != null
+      ? Date.now() - videoStartedAt.current
+      : MIN_VIDEO_MS;
+
+    if (elapsed < MIN_VIDEO_MS) {
+      const remaining = MIN_VIDEO_MS - elapsed;
+      setTimeout(dismiss, remaining);
+      return;
+    }
+
     hasDismissed.current = true;
 
-    // Mark in sessionStorage so navigations don't re-trigger
-    try { sessionStorage.setItem(SESSION_KEY, "1"); } catch {}
+    // Mark in localStorage — persists across ALL browser sessions so intro shows exactly once
+    try { localStorage.setItem(STORAGE_KEY, "1"); } catch {}
 
     // Kill all GSAP animations cleanly
     gsapCtx.current?.kill();
@@ -50,13 +68,13 @@ export function CinematicLoader() {
     setIsExiting(true);
   }, []);
 
-  // ── Mount: check sessionStorage ────────────────────────────────────────────
+  // ── Mount: check localStorage (once-ever gate) ─────────────────────────────
   useEffect(() => {
     let alreadyPlayed = false;
-    try { alreadyPlayed = sessionStorage.getItem(SESSION_KEY) === "1"; } catch {}
+    try { alreadyPlayed = localStorage.getItem(STORAGE_KEY) === "1"; } catch {}
 
     if (alreadyPlayed) {
-      // Skip loader entirely — never block the page
+      // Skip loader entirely — never block the page on repeat visits
       setShouldShow(false);
       return;
     }
@@ -65,17 +83,25 @@ export function CinematicLoader() {
     // Lock body scroll only during actual first-time intro
     document.body.style.overflow = "hidden";
     document.body.style.height = "100vh";
-  }, []); // ← empty deps: runs exactly ONCE per mount, not on route changes
+  }, []); // ← empty deps: runs exactly ONCE per mount
 
   // ── GSAP Animation (only when shouldShow becomes true) ────────────────────
   useEffect(() => {
     if (shouldShow !== true) return;
     if (!brandingRef.current || !metricsRef.current || !gaugeRef.current) return;
 
-    // ── Video preload ──────────────────────────────────────────────────────
+    // ── Video preload + play-time tracking ────────────────────────────────
     if (videoRef.current) {
       videoRef.current.load();
-      videoRef.current.play().catch(() => {}); // autoplay may be blocked silently
+      videoRef.current.play()
+        .then(() => {
+          // Record the moment video actually starts so MIN_VIDEO_MS guard is accurate
+          videoStartedAt.current = Date.now();
+        })
+        .catch(() => {
+          // Autoplay blocked — treat as if video started right now so timer still fires
+          videoStartedAt.current = Date.now();
+        });
     }
 
     // ── Build GSAP context (scoped, auto-cleanup) ──────────────────────────
