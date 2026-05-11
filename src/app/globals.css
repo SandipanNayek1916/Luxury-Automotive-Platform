@@ -29,3 +29,27 @@
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 100px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
+
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  10%  { transform: translate(-2%, -3%); }
+  20%  { transform: translate(3%,  2%); }
+  30%  { transform: translate(-1%, 4%); }
+  40%  { transform: translate(2%, -1%); }
+  50%  { transform: translate(-3%, 1%); }
+  60%  { transform: translate(1%, -2%); }
+  70%  { transform: translate(-2%, 3%); }
+  80%  { transform: translate(3%, -3%); }
+  90%  { transform: translate(-1%, 2%); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.018; }
+  50%       { opacity: 0.034; }
+}
+
+@keyframes reflection-drift {
+  0%   { transform: translateX(-120%) skewX(-20deg); opacity: 0; }
+  40%  { opacity: 0.06; }
+  100% { transform: translateX(220%) skewX(-20deg); opacity: 0; }
+}

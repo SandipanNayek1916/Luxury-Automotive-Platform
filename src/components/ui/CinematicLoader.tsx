@@ -32,7 +32,9 @@ export function CinematicLoader() {
   const brandingRef = useRef<HTMLDivElement>(null);
   const metricsRef = useRef<HTMLDivElement>(null);
   const gaugeRef = useRef<HTMLDivElement>(null);
-  const sweepRef = useRef<HTMLDivElement>(null);   // headlight sweep overlay
+  const sweepRef = useRef<HTMLDivElement>(null);          // headlight sweep overlay
+  const gradientOverlayRef = useRef<HTMLDivElement>(null); // top/bottom cinematic gradient
+  const vignetteRef = useRef<HTMLDivElement>(null);        // side vignette
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const gsapCtx = useRef<gsap.Context | null>(null);
   const hasDismissed = useRef(false);
@@ -181,6 +183,14 @@ export function CinematicLoader() {
 
       // Subtle branding drift upward over full 10s
       gsap.to(brandingRef.current, { y: -24, duration: 10, ease: "none" });
+
+      // ── Near-end atmosphere reveal: fade blocking overlays at t=7s ──────
+      // This "opens up" the loader so the hero peeks through underneath,
+      // making the hero feel like it was always there behind the cinematic world.
+      gsap.to(
+        [gradientOverlayRef.current, vignetteRef.current],
+        { opacity: 0, duration: 3, delay: 7, ease: "power2.inOut" }
+      );
     });
 
     // ── 10-second dismiss timer ────────────────────────────────────────────
@@ -248,6 +258,7 @@ export function CinematicLoader() {
 
           {/* ── Cinematic gradient overlays ──────────────────────────────── */}
           <div
+            ref={gradientOverlayRef}
             className="absolute inset-0 pointer-events-none"
             style={{
               background:
@@ -256,6 +267,7 @@ export function CinematicLoader() {
           />
           {/* Side vignette */}
           <div
+            ref={vignetteRef}
             className="absolute inset-0 pointer-events-none"
             style={{
               background:

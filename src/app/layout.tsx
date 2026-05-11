@@ -5,6 +5,7 @@ import { Providers } from "@/components/providers";
 import { Navbar } from "@/components/navbar";
 import { Toaster } from "react-hot-toast";
 import { CinematicLoader } from "@/components/ui/CinematicLoader";
+import { CinematicAtmosphere } from "@/components/ui/CinematicAtmosphere";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="font-sans">
         <Providers>
           <CinematicLoader />
+          <CinematicAtmosphere />
           <Navbar />
           {children}
           <Toaster position="top-center" toastOptions={{
