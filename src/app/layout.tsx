@@ -1,0 +1,50 @@
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { Providers } from "@/components/providers";
+import { Navbar } from "@/components/navbar";
+import { Toaster } from "react-hot-toast";
+import { CinematicLoader } from "@/components/ui/CinematicLoader";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+
+export const metadata: Metadata = {
+  title: {
+    default: "Unique — Elite Automotive Experiences",
+    template: "%s | Unique"
+  },
+  description: "The world's most exclusive luxury car rental platform. Experience absolute perfection with our curated hypercar and supercar collection.",
+  keywords: ["luxury car rental", "hypercar rental", "supercar experience", "elite mobility", "New York car rental"],
+  authors: [{ name: "Unique Team" }],
+  creator: "Unique Elite",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://unique-platform.com",
+    title: "Unique — Elite Automotive Experiences",
+    description: "Access the world's most exclusive automotive collection.",
+    siteName: "Unique",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Unique — Elite Automotive Experiences",
+    description: "Access the world's most exclusive automotive collection.",
+  },
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" className={inter.variable}>
+      <body className="font-sans">
+        <Providers>
+          <CinematicLoader />
+          <Navbar />
+          {children}
+          <Toaster position="top-center" toastOptions={{
+            style: { borderRadius: "16px", fontSize: "14px" },
+          }} />
+        </Providers>
+      </body>
+    </html>
+  );
+}

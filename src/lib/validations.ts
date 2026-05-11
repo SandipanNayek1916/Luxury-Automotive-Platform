@@ -1,0 +1,38 @@
+import { z } from "zod";
+
+export const carQuerySchema = z.object({
+  category: z.string().optional(),
+  brand: z.string().optional(),
+  minPrice: z.string().optional().transform(v => v ? parseFloat(v) : undefined),
+  maxPrice: z.string().optional().transform(v => v ? parseFloat(v) : undefined),
+  search: z.string().optional(),
+  featured: z.string().optional().transform(v => v === "true"),
+  sortBy: z.enum(["createdAt", "pricePerDay", "year", "name"]).optional().default("createdAt"),
+  order: z.enum(["asc", "desc"]).optional().default("desc"),
+  page: z.string().optional().transform(v => parseInt(v || "1")).default("1"),
+  limit: z.string().optional().transform(v => parseInt(v || "100")).default("100"),
+});
+
+export const carCreateSchema = z.object({
+  name: z.string().min(1),
+  brand: z.string().min(1),
+  model: z.string().min(1),
+  year: z.number().int().min(1900).max(new Date().getFullYear() + 1),
+  category: z.string().min(1),
+  pricePerDay: z.number().positive(),
+  estimatedValue: z.number().nonnegative().optional(),
+  transmission: z.string(),
+  fuelType: z.string(),
+  drivetrain: z.string().optional(),
+  seats: z.number().int().positive(),
+  doors: z.number().int().positive(),
+  mileage: z.string(),
+  engine: z.string(),
+  horsepower: z.number().int().positive(),
+  acceleration: z.string(),
+  topSpeed: z.string(),
+  description: z.string(),
+  features: z.string(), // JSON string
+  mainImage: z.string().url(),
+  location: z.string(),
+});

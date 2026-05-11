@@ -1,0 +1,187 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Role replaced with String for SQLite
+// PENDING, CONFIRMED, ACTIVE, COMPLETED, CANCELLED
+// PENDING, PAID, FAILED, REFUNDED
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          String    @default("USER")
+  phone         String?
+  address       String?
+  city          String?
+  country       String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+  bookings      Booking[]
+  favorites     Favorite[]
+  reviews       Review[]
+  notifications Notification[]
+}
+
+model Car {
+  id           String     @id @default(cuid())
+  name         String
+  brand        String
+  brandRel     Brand?     @relation(fields: [brand], references: [name])
+  model        String
+  year         Int
+  category     String
+  pricePerDay  Float
+  estimatedValue Float    @default(0)
+  transmission String
+  fuelType     String
+  drivetrain   String     @default("RWD")
+  seats        Int
+  doors        Int
+  mileage      String
+  engine       String
+  horsepower   Int
+  acceleration String
+  topSpeed     String
+  description  String
+  soundProfile String     @default("")
+  features     String     // JSON array
+  tags         String     @default("[]") // JSON array of tags
+  images       String     // JSON array of URLs (legacy, kept for backwards compat)
+  mainImage    String     // Legacy single image URL
+  location     String
+  available    Boolean    @default(true)
+  featured     Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  bookings     Booking[]
+  favorites    Favorite[]
+  reviews      Review[]
+  media        CarMedia[]
+}
+
+// Professional media management — each vehicle can have multiple
+// categorized media assets stored on Cloudinary with full metadata.
+model CarMedia {
+  id          String   @id @default(cuid())
+  carId       String
+  type        String   // "hero" | "thumbnail" | "gallery" | "showcase" | "mobile" | "video"
+  url         String   // Full Cloudinary URL
+  publicId    String   // Cloudinary public_id for transformations
+  width       Int?     // Original width
+  height      Int?     // Original height
+  format      String?  // "jpg" | "png" | "webp" | "mp4"
+  alt         String   @default("")
+  caption     String   @default("")
+  sortOrder   Int      @default(0)
+  isPrimary   Boolean  @default(false) // Primary image for this type
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  car         Car      @relation(fields: [carId], references: [id], onDelete: Cascade)
+
+  @@index([carId, type])
+  @@index([carId, sortOrder])
+}
+
+model Booking {
+  id            String        @id @default(cuid())
+  userId        String
+  carId         String
+  startDate     DateTime
+  endDate       DateTime
+  pickupLocation String
+  dropLocation  String
+  totalPrice    Float
+  status        String        @default("PENDING")
+  paymentStatus String        @default("PENDING")
+  paymentIntentId String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  car           Car           @relation(fields: [carId], references: [id], onDelete: Cascade)
+}
+
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  carId     String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  car       Car      @relation(fields: [carId], references: [id], onDelete: Cascade)
+  @@unique([userId, carId])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  carId     String
+  rating    Int
+  comment   String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  car       Car      @relation(fields: [carId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Brand {
+  id            String   @id @default(cuid())
+  name          String   @unique
+  logo          String
+  country       String
+  foundedYear   Int
+  valuation     String
+  category      String
+  flagshipModel String
+  description   String   @default("")
+  featured      Boolean  @default(false)
+  modelsCount   Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  cars          Car[]
+}
