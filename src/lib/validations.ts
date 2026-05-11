@@ -32,7 +32,9 @@ export const carCreateSchema = z.object({
   acceleration: z.string(),
   topSpeed: z.string(),
   description: z.string(),
-  features: z.string(), // JSON string
+  features: z.string().default("[]"),
+  tags: z.string().default("[]"),
+  images: z.string().default("[]"),
   mainImage: z.string().url(),
   location: z.string(),
 });
