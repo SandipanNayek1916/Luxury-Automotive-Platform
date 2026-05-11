@@ -1,5 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-    <rect width="100" height="100" fill="none"/>
-    <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="14" fill="black">P</text>
-    <circle cx="50" cy="50" r="45" stroke="black" stroke-width="2" fill="none"/>
-  </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="currentColor">
+  <!-- Pagani Oval - square viewBox -->
+  <ellipse cx="100" cy="100" rx="90" ry="66" fill="none" stroke="currentColor" stroke-width="6" opacity="0.95"/>
+  <ellipse cx="100" cy="100" rx="76" ry="52" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
+  <text x="100" y="96" font-family="serif" font-size="24" font-weight="900" text-anchor="middle" letter-spacing="3" opacity="0.95">PAGANI</text>
+  <text x="100" y="116" font-family="sans-serif" font-size="10" font-weight="400" text-anchor="middle" letter-spacing="6" opacity="0.6">AUTOMOBILI</text>
+  <circle cx="12" cy="100" r="4" opacity="0.8"/>
+  <circle cx="188" cy="100" r="4" opacity="0.8"/>
+</svg>

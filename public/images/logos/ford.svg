@@ -1,5 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-    <rect width="100" height="100" fill="none"/>
-    <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="14" fill="black">F</text>
-    <circle cx="50" cy="50" r="45" stroke="black" stroke-width="2" fill="none"/>
-  </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="currentColor">
+  <!-- Ford Oval Logo - square viewBox -->
+  <!-- Outer oval -->
+  <ellipse cx="100" cy="100" rx="92" ry="68" fill="none" stroke="currentColor" stroke-width="6" opacity="0.95"/>
+  <!-- Inner oval -->
+  <ellipse cx="100" cy="100" rx="78" ry="54" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
+  <!-- Ford script lettering -->
+  <text x="100" y="115" font-family="Georgia, 'Times New Roman', serif" font-size="52" font-weight="bold" text-anchor="middle" font-style="italic" opacity="0.95">Ford</text>
+</svg>

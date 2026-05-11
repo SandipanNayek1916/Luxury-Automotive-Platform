@@ -1,5 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-    <rect width="100" height="100" fill="none"/>
-    <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="14" fill="black">L</text>
-    <circle cx="50" cy="50" r="45" stroke="black" stroke-width="2" fill="none"/>
-  </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="currentColor">
+  <!-- Lamborghini Raging Bull -->
+  <g transform="translate(100,105)">
+    <!-- Bull body -->
+    <ellipse cx="0" cy="10" rx="30" ry="22" opacity="0.95"/>
+    <!-- Bull head -->
+    <ellipse cx="0" cy="-20" rx="22" ry="18" opacity="0.95"/>
+    <!-- Snout -->
+    <ellipse cx="0" cy="-8" rx="12" ry="8" opacity="0.9"/>
+    <!-- Nose -->
+    <ellipse cx="-4" cy="-6" rx="3" ry="2.5" fill="black" opacity="0.7"/>
+    <ellipse cx="4" cy="-6" rx="3" ry="2.5" fill="black" opacity="0.7"/>
+    <!-- Left horn -->
+    <path d="M-18,-32 C-28,-50 -45,-55 -50,-45 C-55,-35 -40,-20 -26,-22 C-20,-22 -16,-28 -14,-34" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" opacity="0.95"/>
+    <!-- Right horn -->
+    <path d="M18,-32 C28,-50 45,-55 50,-45 C55,-35 40,-20 26,-22 C20,-22 16,-28 14,-34" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" opacity="0.95"/>
+    <!-- Eyes -->
+    <circle cx="-10" cy="-24" r="4" fill="black" opacity="0.8"/>
+    <circle cx="10" cy="-24" r="4" fill="black" opacity="0.8"/>
+    <!-- Front legs -->
+    <rect x="-22" y="28" width="8" height="26" rx="4" opacity="0.9"/>
+    <rect x="-6" y="28" width="8" height="26" rx="4" opacity="0.9"/>
+    <rect x="8" y="28" width="8" height="26" rx="4" opacity="0.9"/>
+    <!-- Tail -->
+    <path d="M28,15 C38,10 42,18 38,24 C34,30 26,28 24,22" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+  </g>
+</svg>

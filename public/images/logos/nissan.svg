@@ -1,5 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-    <rect width="100" height="100" fill="none"/>
-    <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="14" fill="black">N</text>
-    <circle cx="50" cy="50" r="45" stroke="black" stroke-width="2" fill="none"/>
-  </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="currentColor">
+  <!-- Nissan logo - stylized oval with word mark -->
+  <!-- Outer circle -->
+  <circle cx="100" cy="100" r="88" fill="none" stroke="currentColor" stroke-width="6" opacity="0.95"/>
+  <!-- Horizontal bar through center -->
+  <rect x="18" y="90" width="164" height="20" opacity="0.95"/>
+  <!-- Inner circle -->
+  <circle cx="100" cy="100" r="65" fill="none" stroke="currentColor" stroke-width="4" opacity="0.8"/>
+  <!-- NISSAN text in bar -->
+  <text x="100" y="106" font-family="sans-serif" font-size="18" font-weight="900" text-anchor="middle" letter-spacing="4" fill="black" opacity="0.9">NISSAN</text>
+</svg>

@@ -1,5 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-    <rect width="100" height="100" fill="none"/>
-    <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="14" fill="black">M</text>
-    <circle cx="50" cy="50" r="45" stroke="black" stroke-width="2" fill="none"/>
-  </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="currentColor">
+  <!-- Maybach M emblem -->
+  <!-- Outer circle -->
+  <circle cx="100" cy="100" r="88" fill="none" stroke="currentColor" stroke-width="5" opacity="0.95"/>
+  <circle cx="100" cy="100" r="76" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
+  <!-- Double M monogram (Maybach style) -->
+  <!-- Left M -->
+  <path d="M28,60 L28,140 L44,140 L44,90 L60,115 L76,90 L76,140 L92,140 L92,60 L76,60 L60,85 L44,60 Z" opacity="0.95"/>
+  <!-- Right M -->
+  <path d="M108,60 L108,140 L124,140 L124,90 L140,115 L156,90 L156,140 L172,140 L172,60 L156,60 L140,85 L124,60 Z" opacity="0.95"/>
+</svg>

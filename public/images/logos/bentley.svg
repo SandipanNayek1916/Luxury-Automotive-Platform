@@ -1,5 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-    <rect width="100" height="100" fill="none"/>
-    <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="14" fill="black">B</text>
-    <circle cx="50" cy="50" r="45" stroke="black" stroke-width="2" fill="none"/>
-  </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="currentColor">
+  <!-- Bentley Winged B - square viewBox -->
+  <!-- Left wing (upper & lower) -->
+  <path d="M88,100 C72,100 56,94 43,84 C30,74 20,60 14,44 C11,38 13,37 16,42 C26,60 44,80 68,90 C80,95 88,96 88,96 Z" opacity="0.95"/>
+  <path d="M88,100 C72,100 56,108 43,118 C30,128 20,142 14,158 C11,164 13,165 16,160 C26,142 44,122 68,112 C80,107 88,106 88,106 Z" opacity="0.95"/>
+  <!-- Right wing (upper & lower) -->
+  <path d="M112,100 C128,100 144,94 157,84 C170,74 180,60 186,44 C189,38 187,37 184,42 C174,60 156,80 132,90 C120,95 112,96 112,96 Z" opacity="0.95"/>
+  <path d="M112,100 C128,100 144,108 157,118 C170,128 180,142 186,158 C189,164 187,165 184,160 C174,142 156,122 132,112 C120,107 112,106 112,106 Z" opacity="0.95"/>
+  <!-- Center B letterform -->
+  <g transform="translate(84,54)">
+    <rect x="0" y="0" width="12" height="92" rx="4" opacity="0.95"/>
+    <!-- Upper bowl -->
+    <path d="M12,0 L12,44 Q50,44 50,22 Q50,0 12,0 Z" opacity="0.95"/>
+    <path d="M20,8 L20,36 Q38,36 38,22 Q38,8 20,8 Z" fill="black" opacity="0.65"/>
+    <!-- Lower bowl (larger) -->
+    <path d="M12,44 L12,92 Q54,92 54,68 Q54,44 12,44 Z" opacity="0.95"/>
+    <path d="M20,52 L20,84 Q40,84 40,68 Q40,52 20,52 Z" fill="black" opacity="0.65"/>
+  </g>
+</svg>

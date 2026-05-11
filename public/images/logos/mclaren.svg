@@ -1,5 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-    <rect width="100" height="100" fill="none"/>
-    <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="14" fill="black">M</text>
-    <circle cx="50" cy="50" r="45" stroke="black" stroke-width="2" fill="none"/>
-  </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="currentColor">
+  <!-- McLaren Speedmark -->
+  <!-- Core speed mark shape - distinctive McLaren speedmark -->
+  <path d="M30,100 C30,60 55,30 100,30 C130,30 152,46 162,68 L148,74 C140,56 122,44 100,44 C62,44 44,70 44,100 C44,130 62,156 100,156 C122,156 140,144 148,126 L162,132 C152,154 130,170 100,170 C55,170 30,140 30,100 Z" opacity="0.95"/>
+  <!-- Inner speed slash -->
+  <path d="M85,46 L140,100 L85,154 L70,140 L112,100 L70,60 Z" opacity="0.9"/>
+  <!-- McLaren text beneath -->
+  <text x="100" y="190" font-family="sans-serif" font-size="13" font-weight="900" text-anchor="middle" letter-spacing="4" opacity="0.8">McLAREN</text>
+</svg>
