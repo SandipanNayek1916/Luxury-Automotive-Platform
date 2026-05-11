@@ -1,7 +1,6 @@
+// Route-level loading fallback — intentionally invisible.
+// The cinematic intro is handled by CinematicLoader in root layout (first visit only).
+// Between pages we rely on Next.js prefetching for instant navigation.
 export default function Loading() {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin" />
-    </div>
-  );
+  return null;
 }

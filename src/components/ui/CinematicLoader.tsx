@@ -1,289 +1,347 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
-import { usePathname } from "next/navigation";
 
-// The user will provide these video files. 
-// We support an array so multiple intros can rotate.
-const VIDEO_SOURCES = [
-  "/videos/aventador-svj-loading.mp4"
-];
+// ─────────────────────────────────────────────────────────────────────────────
+// CONSTANTS
+// ─────────────────────────────────────────────────────────────────────────────
+const SESSION_KEY = "unique_intro_played";
+const INTRO_DURATION_MS = 5000; // exact 5 seconds
+const VIDEO_SRC = "/videos/aventador-svj-loading.mp4";
+const VIDEO_POSTER = "/images/hypercar_silhouette.png";
 
+// ─────────────────────────────────────────────────────────────────────────────
+// COMPONENT
+// ─────────────────────────────────────────────────────────────────────────────
 export function CinematicLoader() {
+  // ── State ──────────────────────────────────────────────────────────────────
+  const [shouldShow, setShouldShow] = useState<boolean | null>(null); // null = not yet determined
+  const [isExiting, setIsExiting] = useState(false);
+  const [speedValue, setSpeedValue] = useState(0);
+
+  // ── Refs ───────────────────────────────────────────────────────────────────
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const brandingRef = useRef<HTMLDivElement>(null);
   const metricsRef = useRef<HTMLDivElement>(null);
   const gaugeRef = useRef<HTMLDivElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
-  
-  const [progress, setProgress] = useState(0);
-  const [isComplete, setIsComplete] = useState(false);
-  const [videoSrc, setVideoSrc] = useState(VIDEO_SOURCES[0]);
-  
-  const pathname = usePathname();
-  const prevPathnameRef = useRef(pathname);
-  const [hasMounted, setHasMounted] = useState(false);
-  const [hasPlayedInitial, setHasPlayedInitial] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const gsapCtx = useRef<gsap.Context | null>(null);
+  const hasDismissed = useRef(false);
 
-  useEffect(() => {
-    setHasMounted(true);
-    // Randomize video source on client side mount
-    setVideoSrc(VIDEO_SOURCES[Math.floor(Math.random() * VIDEO_SOURCES.length)]);
+  // ── Dismiss handler ────────────────────────────────────────────────────────
+  const dismiss = useCallback(() => {
+    // Guard: only run once
+    if (hasDismissed.current) return;
+    hasDismissed.current = true;
+
+    // Mark in sessionStorage so navigations don't re-trigger
+    try { sessionStorage.setItem(SESSION_KEY, "1"); } catch {}
+
+    // Kill all GSAP animations cleanly
+    gsapCtx.current?.kill();
+
+    // Restore scroll before framer exit animation starts
+    document.body.style.overflow = "";
+    document.body.style.height = "";
+
+    setIsExiting(true);
   }, []);
 
+  // ── Mount: check sessionStorage ────────────────────────────────────────────
   useEffect(() => {
-    if (!hasMounted) return;
+    let alreadyPlayed = false;
+    try { alreadyPlayed = sessionStorage.getItem(SESSION_KEY) === "1"; } catch {}
 
-    // On route change, reset state and wait for the next render to attach refs
-    if (pathname !== prevPathnameRef.current) {
-      prevPathnameRef.current = pathname;
-      setIsComplete(false);
-      setProgress(0);
+    if (alreadyPlayed) {
+      // Skip loader entirely — never block the page
+      setShouldShow(false);
       return;
     }
 
-    // Do not run animation if it's already complete or refs are not ready
-    if (isComplete) return;
+    setShouldShow(true);
+    // Lock body scroll only during actual first-time intro
+    document.body.style.overflow = "hidden";
+    document.body.style.height = "100vh";
+  }, []); // ← empty deps: runs exactly ONCE per mount, not on route changes
+
+  // ── GSAP Animation (only when shouldShow becomes true) ────────────────────
+  useEffect(() => {
+    if (shouldShow !== true) return;
     if (!brandingRef.current || !metricsRef.current || !gaugeRef.current) return;
-    
-    // Prevent scrolling while loading
-    document.body.style.overflow = 'hidden';
 
-    const isInitial = !hasPlayedInitial;
-    // We want the cinematic feel to last a bit even on route changes.
-    const timeScale = isInitial ? 1 : 2; 
+    // ── Video preload ──────────────────────────────────────────────────────
+    if (videoRef.current) {
+      videoRef.current.load();
+      videoRef.current.play().catch(() => {}); // autoplay may be blocked silently
+    }
 
-    const tl = gsap.timeline({
-      onComplete: () => {
-        // Flash to white/transparent effect right before dissolve
-        gsap.to(overlayRef.current, {
-          backgroundColor: "rgba(255,255,255,1)",
-          duration: 0.15,
-          yoyo: true,
-          repeat: 1,
-          onComplete: () => {
-            setIsComplete(true);
-            setHasPlayedInitial(true);
-            document.body.style.overflow = '';
-          }
+    // ── Build GSAP context (scoped, auto-cleanup) ──────────────────────────
+    gsapCtx.current = gsap.context(() => {
+      const tl = gsap.timeline();
+
+      // Initial invisible state
+      gsap.set([brandingRef.current, metricsRef.current, gaugeRef.current], {
+        opacity: 0,
+        willChange: "opacity, transform",
+      });
+      if (videoRef.current) {
+        gsap.set(videoRef.current, { scale: 1.08, opacity: 0, willChange: "opacity, transform" });
+      }
+
+      // Phase 1 — Video fade in + subtle scale to 1
+      if (videoRef.current) {
+        tl.to(videoRef.current, {
+          opacity: 0.82,
+          scale: 1,
+          duration: 1.6,
+          ease: "power2.out",
         });
       }
-    });
 
-    // Initial state setup
-    gsap.set([brandingRef.current, metricsRef.current, gaugeRef.current], { opacity: 0 });
-    if (videoRef.current) {
-      gsap.set(videoRef.current, { scale: 1.1, opacity: 0 });
-    }
+      // Phase 2 — Branding reveal
+      tl.to(
+        brandingRef.current,
+        { opacity: 1, y: 0, duration: 1.0, ease: "power3.out" },
+        "-=1.0"
+      );
 
-    // Phase 1: Video Fade In & Scale down (Cinematic Reveal)
-    if (videoRef.current) {
-      tl.to(videoRef.current, {
-        opacity: 0.8,
-        scale: 1,
-        duration: 1.5 / timeScale,
-        ease: "power2.out"
+      // Phase 3 — Metrics + gauge
+      tl.to(metricsRef.current, { opacity: 1, duration: 0.5 }, "-=0.5")
+        .fromTo(
+          ".loader-metric-item",
+          { opacity: 0, x: -16 },
+          { opacity: 1, x: 0, duration: 0.35, stagger: 0.08, ease: "power2.out" },
+          "-=0.3"
+        )
+        .to(gaugeRef.current, { opacity: 1, duration: 0.5 }, "-=0.7");
+
+      // Speedometer count-up animation (0 → 240 over 4s)
+      const speedObj = { v: 0 };
+      gsap.to(speedObj, {
+        v: 240,
+        duration: 4.2,
+        ease: "power2.inOut",
+        onUpdate() {
+          setSpeedValue(Math.round(speedObj.v));
+        },
       });
-    }
 
-    // Phase 2: Center Branding Reveal
-    tl.to(brandingRef.current, {
-      opacity: 1,
-      y: 0,
-      duration: 1.0 / timeScale,
-      ease: "power3.out"
-    }, "-=1.0")
-    
-    // Phase 3: Performance System & Gauge Boot
-    .to(metricsRef.current, {
-      opacity: 1,
-      duration: 0.5 / timeScale
-    }, "-=0.5")
-    .fromTo(".metric-item", {
-      opacity: 0,
-      x: -20
-    }, {
-      opacity: 1,
-      x: 0,
-      duration: 0.4 / timeScale,
-      stagger: 0.1 / timeScale,
-      ease: "power2.out"
-    }, "-=0.2")
-    
-    .to(gaugeRef.current, {
-      opacity: 1,
-      duration: 0.5 / timeScale
-    }, "-=0.8");
-
-    // Speedometer animation
-    let progressObj = { value: 0 };
-    gsap.to(progressObj, {
-      value: 240,
-      duration: 3.0 / timeScale,
-      ease: "power2.inOut",
-      onUpdate: () => {
-        setProgress(Math.round(progressObj.value));
-      }
+      // Subtle branding drift
+      gsap.to(brandingRef.current, { y: -18, duration: 5, ease: "none" });
     });
 
-    // Parallax branding slightly
-    gsap.to(brandingRef.current, {
-      y: -20,
-      duration: 4.0 / timeScale,
-      ease: "none"
-    });
+    // ── Exact 5-second timer ──────────────────────────────────────────────
+    timerRef.current = setTimeout(dismiss, INTRO_DURATION_MS);
 
     return () => {
-      tl.kill();
-      gsap.killTweensOf(progressObj);
-      if (brandingRef.current) gsap.killTweensOf(brandingRef.current);
-      document.body.style.overflow = '';
+      if (timerRef.current) clearTimeout(timerRef.current);
+      gsapCtx.current?.kill();
     };
-  }, [pathname, hasMounted, isComplete]); // Re-run on pathname or isComplete change
+  }, [shouldShow, dismiss]);
 
-  if (!hasMounted) return null;
+  // ─────────────────────────────────────────────────────────────────────────
+  // RENDER
+  // ─────────────────────────────────────────────────────────────────────────
+
+  // Don't render anything until we've determined if it should show
+  if (shouldShow === null || shouldShow === false) return null;
 
   return (
-    <AnimatePresence mode="wait">
-      {!isComplete && (
+    <AnimatePresence mode="wait" onExitComplete={() => setShouldShow(false)}>
+      {!isExiting && (
         <motion.div
-          key="loader"
+          key="cinematic-intro"
           ref={containerRef}
-          className="fixed inset-0 z-[9999] bg-[#F5F5F5] overflow-hidden font-sans"
+          className="fixed inset-0 z-[9999] overflow-hidden select-none"
+          style={{
+            backgroundColor: "#F2F0ED",
+            willChange: "opacity, filter",
+            transform: "translateZ(0)", // GPU layer
+          }}
           initial={{ opacity: 1 }}
-          exit={{ 
+          exit={{
             opacity: 0,
-            filter: "blur(10px)",
-            transition: { duration: 1.2, ease: [0.16, 1, 0.3, 1] }
+            transition: {
+              duration: 1.4,
+              ease: [0.16, 1, 0.3, 1],
+            },
           }}
         >
-          {/* Fullscreen Background Video */}
-          <video 
+          {/* ── Fullscreen Video ─────────────────────────────────────── */}
+          <video
             ref={videoRef}
-            src={videoSrc}
-            autoPlay 
-            loop 
-            muted 
+            src={VIDEO_SRC}
+            poster={VIDEO_POSTER}
+            muted
             playsInline
-            className="absolute inset-0 w-full h-full object-cover opacity-0 scale-110"
-            // Fallback poster image if video fails or takes time
-            poster="/images/hypercar_silhouette.png" 
+            loop
+            preload="auto"
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{
+              opacity: 0,
+              transform: "scale(1.08) translateZ(0)",
+              willChange: "opacity, transform",
+            }}
           />
 
-          {/* Cinematic Dark Overlays -> Light Overlays */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#F5F5F5]/80 via-transparent to-[#F5F5F5]/90 pointer-events-none" />
-          <div className="absolute inset-0 bg-[#F5F5F5]/40 pointer-events-none mix-blend-screen" />
-          
-          {/* Grid Overlay */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000008_1px,transparent_1px),linear-gradient(to_bottom,#00000008_1px,transparent_1px)] bg-[size:60px_60px] pointer-events-none opacity-60" 
-               style={{ maskImage: "radial-gradient(circle at center, black, transparent 80%)", WebkitMaskImage: "radial-gradient(circle at center, black, transparent 80%)" }} />
+          {/* ── Cinematic gradient overlays ──────────────────────────── */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                "linear-gradient(to bottom, rgba(242,240,237,0.78) 0%, rgba(242,240,237,0.0) 40%, rgba(242,240,237,0.85) 100%)",
+            }}
+          />
+          {/* Side vignette */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                "radial-gradient(ellipse at center, transparent 40%, rgba(242,240,237,0.55) 100%)",
+            }}
+          />
 
-          {/* Flash Overlay for Transition */}
-          <div ref={overlayRef} className="absolute inset-0 pointer-events-none bg-transparent" />
+          {/* ── Subtle grid ──────────────────────────────────────────── */}
+          <div
+            className="absolute inset-0 pointer-events-none opacity-30"
+            style={{
+              backgroundImage:
+                "linear-gradient(to right,rgba(0,0,0,0.04) 1px,transparent 1px),linear-gradient(to bottom,rgba(0,0,0,0.04) 1px,transparent 1px)",
+              backgroundSize: "64px 64px",
+              maskImage:
+                "radial-gradient(circle at center, black 20%, transparent 80%)",
+              WebkitMaskImage:
+                "radial-gradient(circle at center, black 20%, transparent 80%)",
+            }}
+          />
 
-          {/* Center Branding */}
-          <div 
+          {/* ── Center Branding ──────────────────────────────────────── */}
+          <div
             ref={brandingRef}
-            className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center opacity-0 translate-y-8 px-4"
+            className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-6"
+            style={{ opacity: 0, transform: "translateY(28px) translateZ(0)" }}
           >
-            <motion.div 
-              className="text-black tracking-[0.4em] md:tracking-[0.6em] text-[9px] md:text-[11px] font-semibold mb-4 md:mb-6 uppercase"
+            <p
+              className="text-black/60 tracking-[0.5em] text-[9px] sm:text-[10px] font-semibold uppercase mb-5"
             >
               PREMIUM MOBILITY EXPERIENCE
-            </motion.div>
-            
-            <h1 
-              className="text-4xl md:text-6xl lg:text-7xl font-extralight tracking-tight text-[#0A0A0A] mb-4 md:mb-6 uppercase"
-              style={{ textShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
+            </p>
+
+            <h1
+              className="text-4xl sm:text-5xl md:text-7xl font-extralight tracking-tight text-[#0A0A0A] mb-5 uppercase leading-none"
+              style={{ textShadow: "0 8px 24px rgba(0,0,0,0.08)" }}
             >
-              DRIVE BEYOND <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#0A0A0A] to-[#0A0A0A]/50">ORDINARY</span>
+              DRIVE BEYOND{" "}
+              <span className="font-semibold">ORDINARY</span>
             </h1>
-            
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-[1px] bg-black/10" />
-              <p className="text-black/50 tracking-[0.2em] text-[10px] md:text-xs font-medium uppercase">
-                Loading elite automotive collection...
+
+            <div className="flex items-center gap-4 mb-10">
+              <div className="w-10 h-px bg-black/15" />
+              <p className="text-black/40 tracking-[0.2em] text-[10px] sm:text-xs font-medium uppercase">
+                Loading elite automotive collection
               </p>
-              <div className="w-12 h-[1px] bg-black/10" />
+              <div className="w-10 h-px bg-black/15" />
             </div>
-            
-            {/* Minimalist Loading Bar */}
-            <div className="mt-12 w-48 md:w-64 h-[1px] bg-black/10 relative overflow-hidden">
-              <motion.div 
-                className="absolute inset-y-0 left-0 bg-black"
+
+            {/* Progress bar — Framer Motion drives this independently */}
+            <div className="w-48 sm:w-64 h-px bg-black/10 relative overflow-hidden rounded-full">
+              <motion.div
+                className="absolute inset-y-0 left-0 bg-black/70 rounded-full"
                 initial={{ width: "0%" }}
                 animate={{ width: "100%" }}
-                transition={{ duration: 3, ease: "easeInOut" }}
+                transition={{ duration: INTRO_DURATION_MS / 1000, ease: "easeInOut" }}
               />
             </div>
           </div>
 
-          {/* Phase 3: Performance Metrics (Left Side) */}
-          <div 
+          {/* ── Left: System Metrics ─────────────────────────────────── */}
+          <div
             ref={metricsRef}
-            className="absolute left-6 md:left-12 bottom-12 md:top-1/2 md:-translate-y-1/2 flex flex-col gap-3 md:gap-5 opacity-0 z-10"
+            className="absolute left-6 md:left-12 top-1/2 -translate-y-1/2 hidden sm:flex flex-col gap-5 z-10"
+            style={{ opacity: 0 }}
           >
-            {[
-              "SYSTEMS NOMINAL", 
-              "AWD ACTIVE", 
-              "AERO DEPLOYED", 
-              "TELEMETRY SYNCED"
-            ].map((metric, idx) => (
-              <div key={idx} className="metric-item flex items-center gap-3 md:gap-4">
-                <div className="relative">
-                  <div className="w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-black/80 shadow-[0_0_8px_rgba(0,0,0,0.2)]" />
-                  <motion.div 
-                    className="absolute inset-0 rounded-full bg-black"
-                    animate={{ scale: [1, 2.5, 1], opacity: [0.8, 0, 0.8] }}
-                    transition={{ duration: 2, repeat: Infinity, delay: idx * 0.3 }}
-                  />
+            {["SYSTEMS NOMINAL", "AWD ACTIVE", "AERO DEPLOYED", "TELEMETRY SYNCED"].map(
+              (label, i) => (
+                <div key={i} className="loader-metric-item flex items-center gap-3">
+                  <div className="relative flex-shrink-0">
+                    <div className="w-1.5 h-1.5 rounded-full bg-black/70" />
+                    <motion.div
+                      className="absolute inset-0 rounded-full bg-black/60"
+                      animate={{ scale: [1, 2.8, 1], opacity: [0.7, 0, 0.7] }}
+                      transition={{ duration: 2.2, repeat: Infinity, delay: i * 0.28 }}
+                    />
+                  </div>
+                  <span className="text-[9px] tracking-[0.28em] text-black/60 font-semibold uppercase whitespace-nowrap">
+                    {label}
+                  </span>
                 </div>
-                <span className="text-[8px] md:text-[10px] tracking-[0.25em] md:tracking-[0.3em] text-black/70 font-bold whitespace-nowrap uppercase">
-                  {metric}
-                </span>
-              </div>
-            ))}
-            
-            {/* Ambient Vertical Line connecting dots */}
-            <div className="absolute left-[2px] md:left-[3px] top-4 bottom-4 w-[1px] bg-gradient-to-b from-black/10 via-black/5 to-transparent -z-10" />
+              )
+            )}
+            {/* Vertical connecting line */}
+            <div
+              className="absolute left-[3px] top-3 bottom-3 w-px"
+              style={{
+                background:
+                  "linear-gradient(to bottom, rgba(0,0,0,0.08), rgba(0,0,0,0.04), transparent)",
+              }}
+            />
           </div>
 
-          {/* Loading Indicator: Speedometer */}
-          <div 
+          {/* ── Right: Speedometer ───────────────────────────────────── */}
+          <div
             ref={gaugeRef}
-            className="absolute bottom-8 right-6 md:bottom-12 md:right-12 opacity-0 flex flex-col items-end z-10"
+            className="absolute bottom-10 right-6 md:bottom-12 md:right-12 flex flex-col items-end z-10"
+            style={{ opacity: 0 }}
           >
-            <div className="flex items-baseline gap-2">
-              <motion.div 
-                className="text-[42px] md:text-[72px] font-extralight leading-none text-[#0A0A0A] tracking-tighter"
-                style={{ textShadow: "0 0 20px rgba(0,0,0,0.1)" }}
-                animate={{ filter: progress > 200 ? "blur(0.5px)" : "blur(0px)", x: progress > 220 ? [-0.5, 0.5, -0.5] : 0 }}
-                transition={{ repeat: Infinity, duration: 0.05 }}
-              >
-                {progress}
-              </motion.div>
-            </div>
-            <div className="flex items-center gap-2 mt-1 md:mt-2">
-              <motion.div 
-                className="w-12 h-[1px]" 
-                style={{ background: "linear-gradient(90deg, transparent, rgba(0,0,0,0.4))" }}
+            <motion.div
+              className="text-5xl md:text-7xl font-extralight leading-none text-[#0A0A0A] tracking-tighter tabular-nums"
+              style={{ textShadow: "0 0 24px rgba(0,0,0,0.08)", willChange: "transform" }}
+              animate={
+                speedValue > 215
+                  ? { x: [-0.6, 0.6, -0.6], transition: { repeat: Infinity, duration: 0.06 } }
+                  : {}
+              }
+            >
+              {speedValue}
+            </motion.div>
+
+            <div className="flex items-center gap-2 mt-1.5">
+              <div
+                className="w-12 h-px"
+                style={{ background: "linear-gradient(90deg, transparent, rgba(0,0,0,0.35))" }}
               />
-              <div className="text-[9px] md:text-[10px] tracking-[0.4em] text-black/50 font-bold uppercase">KM/H</div>
+              <span className="text-[9px] tracking-[0.4em] text-black/45 font-bold uppercase">
+                KM/H
+              </span>
             </div>
-            
-            {/* High-end HUD Grid Element */}
-            <div className="absolute -bottom-6 -right-6 w-24 h-24 md:w-36 md:h-36 border-r border-b border-black/10 rounded-full pointer-events-none">
-              <motion.div 
-                className="absolute inset-0 border-r border-b border-black/20 rounded-full"
+
+            {/* HUD arc */}
+            <div className="absolute -bottom-5 -right-5 w-28 h-28 border-r border-b border-black/10 rounded-full pointer-events-none">
+              <motion.div
+                className="absolute inset-0 border-r border-b border-black/15 rounded-full"
                 animate={{ rotate: 360 }}
-                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
               />
             </div>
           </div>
-          
+
+          {/* ── Top-left brand mark ──────────────────────────────────── */}
+          <div className="absolute top-7 left-7 md:top-10 md:left-12 pointer-events-none">
+            <p className="text-[8px] md:text-[9px] tracking-[0.4em] text-black/35 font-semibold uppercase">
+              UNIQUE ™
+            </p>
+          </div>
+
+          {/* ── Top-right session tag ────────────────────────────────── */}
+          <div className="absolute top-7 right-7 md:top-10 md:right-12 pointer-events-none flex items-center gap-2">
+            <div className="w-1 h-1 rounded-full bg-black/30 animate-pulse" />
+            <p className="text-[8px] md:text-[9px] tracking-[0.3em] text-black/35 font-semibold uppercase">
+              BOOT SEQUENCE
+            </p>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
