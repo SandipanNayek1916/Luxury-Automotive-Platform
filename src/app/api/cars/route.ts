@@ -111,9 +111,13 @@ export async function GET(req: NextRequest) {
         limit,
       },
     });
-  } catch (error) {
-    console.error("[CARS_GET_ERROR]", error);
-    return NextResponse.json({ error: "Failed to fetch cars" }, { status: 500 });
+  } catch (error: any) {
+    console.error("[CARS_GET]", error);
+    return NextResponse.json({ 
+      error: "Failed to fetch cars", 
+      details: error.message,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined 
+    }, { status: 500 });
   }
 }
 
