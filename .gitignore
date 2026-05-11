@@ -27,3 +27,4 @@ build/
 
 # Prisma
 /prisma/migrations/
+.vercel
