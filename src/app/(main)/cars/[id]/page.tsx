@@ -9,7 +9,6 @@ import { useSession } from "next-auth/react";
 import { Heart, Calendar, Gauge, Fuel, Users, DoorOpen, Zap, ArrowLeft, Loader2, Play, ChevronRight, Speaker, Wind } from "lucide-react";
 import { formatPrice, calculateDays } from "@/lib/utils";
 import toast from "react-hot-toast";
-import { CarModel } from "@/components/ui/CarModel";
 
 export default function CarDetailPage() {
   const { id } = useParams();
@@ -19,18 +18,6 @@ export default function CarDetailPage() {
   const [endDate, setEndDate] = useState("");
   const [pickup, setPickup] = useState("Dubai");
   const [activeImage, setActiveImage] = useState(0);
-  const [isBooking, setIsBooking] = useState(false);
-  const [addons, setAddons] = useState({
-    chauffeur: false,
-    insurance: false,
-    concierge: false,
-  });
-
-  const addonPrices = {
-    chauffeur: 500,
-    insurance: 250,
-    concierge: 150,
-  };
 
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -50,44 +37,31 @@ export default function CarDetailPage() {
   });
 
   const days = startDate && endDate ? calculateDays(new Date(startDate), new Date(endDate)) : 0;
-  const basePrice = days * (car?.pricePerDay || 0);
-  const addonsTotal = days * (
-    (addons.chauffeur ? addonPrices.chauffeur : 0) +
-    (addons.insurance ? addonPrices.insurance : 0) +
-    (addons.concierge ? addonPrices.concierge : 0)
-  );
-  const total = basePrice + addonsTotal;
+  const total = days * (car?.pricePerDay || 0);
 
   const handleBook = async () => {
     if (!session) { toast.error("Please sign in to book"); router.push("/login"); return; }
     if (!startDate || !endDate) { toast.error("Select dates"); return; }
     if (days < 1) { toast.error("Minimum 1 day rental"); return; }
 
-    setIsBooking(true);
-    try {
-      const res = await fetch("/api/bookings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          carId: id,
-          startDate,
-          endDate,
-          pickupLocation: pickup,
-          dropLocation: pickup,
-          totalPrice: total,
-        }),
-      });
-      const booking = await res.json();
-      if (res.ok) {
-        toast.success("Booking created! Proceed to payment.");
-        router.push(`/bookings`);
-      } else {
-        toast.error(booking.error || "Booking failed");
-      }
-    } catch (error) {
-      toast.error("An unexpected error occurred");
-    } finally {
-      setIsBooking(false);
+    const res = await fetch("/api/bookings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        carId: id,
+        startDate,
+        endDate,
+        pickupLocation: pickup,
+        dropLocation: pickup,
+        totalPrice: total,
+      }),
+    });
+    const booking = await res.json();
+    if (res.ok) {
+      toast.success("Booking created! Proceed to payment.");
+      router.push(`/bookings`);
+    } else {
+      toast.error(booking.error || "Booking failed");
     }
   };
 
@@ -209,33 +183,6 @@ export default function CarDetailPage() {
               </p>
             </motion.section>
 
-            {/* 3D Inspection Section */}
-            <motion.section
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              className="relative h-[500px] w-full rounded-[3rem] overflow-hidden bg-gradient-to-b from-white/[0.02] to-transparent border border-white/5"
-            >
-              <div className="absolute top-8 left-8 z-20">
-                <h2 className="text-sm font-bold tracking-[0.2em] uppercase text-white/40 mb-2">Digital Twin</h2>
-                <p className="text-2xl font-bold tracking-tight">3D Inspection</p>
-              </div>
-              <div className="absolute top-8 right-8 z-20 flex gap-2">
-                <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[10px] font-bold tracking-widest uppercase text-white/60">Live Stream</span>
-                </div>
-              </div>
-              
-              <div className="w-full h-full">
-                <CarModel />
-              </div>
-
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20">
-                <p className="text-[10px] font-bold tracking-widest uppercase text-white/20">Rotate to inspect every detail</p>
-              </div>
-            </motion.section>
-
             {/* Specifications Grid */}
             <motion.section
               initial={{ opacity: 0, y: 20 }}
@@ -318,12 +265,6 @@ export default function CarDetailPage() {
           {/* Sidebar - Booking Configuration */}
           <div className="lg:col-span-4 relative">
             <div className="sticky top-32 bg-white/5 border border-white/10 rounded-[3rem] p-8 backdrop-blur-xl shadow-2xl">
-              {/* Urgency Badge */}
-              <div className="flex items-center gap-2 mb-6">
-                <div className="flex h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-                <span className="text-[10px] font-bold tracking-widest uppercase text-red-500">High Demand: 2 slots remaining</span>
-              </div>
-
               <div className="flex items-baseline justify-between mb-8 pb-8 border-b border-white/10">
                 <div>
                   <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/40 block mb-2">Daily Rate</span>
@@ -371,85 +312,16 @@ export default function CarDetailPage() {
                   </select>
                 </div>
 
-                {/* Add-ons Section */}
-                <div className="space-y-4 py-6 border-y border-white/10">
-                  <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/40 mb-4">Enhance Your Journey</p>
-                  
-                  {[
-                    { id: "chauffeur", label: "Professional Chauffeur", price: addonPrices.chauffeur, icon: Users },
-                    { id: "insurance", label: "Insurance Plus", price: addonPrices.insurance, icon: Heart },
-                    { id: "concierge", label: "Concierge Delivery", price: addonPrices.concierge, icon: Wind },
-                  ].map((addon) => (
-                    <button
-                      key={addon.id}
-                      onClick={() => setAddons(prev => ({ ...prev, [addon.id]: !prev[addon.id as keyof typeof prev] }))}
-                      className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all duration-300 ${
-                        addons[addon.id as keyof typeof addons] 
-                          ? "bg-white/10 border-white/30 text-white" 
-                          : "bg-transparent border-white/5 text-white/40 hover:border-white/10"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <addon.icon className="w-4 h-4" />
-                        <span className="text-xs font-medium">{addon.label}</span>
-                      </div>
-                      <span className="text-xs font-bold">+{formatPrice(addon.price)}<span className="text-[10px] opacity-50 ml-1">/day</span></span>
-                    </button>
-                  ))}
-                </div>
-
-                {/* Price Breakdown */}
-                {days > 0 && (
-                  <div className="space-y-2 py-4 animate-in fade-in slide-in-from-top-2 duration-500">
-                    <div className="flex justify-between text-xs text-white/40">
-                      <span>Base Rental ({days} days)</span>
-                      <span>{formatPrice(basePrice)}</span>
-                    </div>
-                    {addonsTotal > 0 && (
-                      <div className="flex justify-between text-xs text-white/40">
-                        <span>Premium Add-ons</span>
-                        <span>{formatPrice(addonsTotal)}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between text-lg font-bold text-white pt-2 border-t border-white/5">
-                      <span>Total Amount</span>
-                      <span>{formatPrice(total)}</span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Trust Markers */}
-                <div className="grid grid-cols-3 gap-2 pt-4">
-                  {[
-                    { icon: Wind, label: "VIP Delivery" },
-                    { icon: Heart, label: "Full Cover" },
-                    { icon: Zap, label: "Instant" },
-                  ].map((item, i) => (
-                    <div key={i} className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
-                      <item.icon className="w-3 h-3 text-white/40" />
-                      <span className="text-[8px] font-bold tracking-widest uppercase text-white/40">{item.label}</span>
-                    </div>
-                  ))}
-                </div>
-
                 <button 
                   onClick={handleBook} 
-                  disabled={isBooking}
-                  className="w-full bg-white text-black py-6 rounded-full font-bold flex items-center justify-center gap-2 hover:bg-white/90 transition-all hover:scale-[1.02] active:scale-95 mt-4 group relative overflow-hidden disabled:opacity-50 disabled:scale-100 disabled:cursor-not-allowed"
+                  className="w-full bg-white text-black py-5 rounded-full font-bold flex items-center justify-center gap-2 hover:bg-white/90 transition-all hover:scale-[1.02] active:scale-95 mt-8 group"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                  {isBooking ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <>
-                      <span className="relative z-10">{session ? "Confirm Reservation" : "Sign In to Reserve"}</span>
-                      <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform relative z-10" />
-                    </>
-                  )}
+                  {session ? "Reserve Now" : "Sign In to Reserve"} 
+                  <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
                 
-                <p className="text-center text-[10px] tracking-wide text-white/30 uppercase mt-4">
-                  Elite Membership: <span className="text-white/60">Priority Concierge Included</span>
+                <p className="text-center text-xs text-white/40 mt-4">
+                  You won't be charged until availability is confirmed.
                 </p>
               </div>
             </div>

@@ -42,17 +42,16 @@ function Model({ url }: { url: string }) {
   );
 }
 
-export function CarModel({ url = "/models/p1/scene.gltf", scale = 1.4 }: { url?: string, scale?: number }) {
+export function CarModel() {
   return (
-    <div className="w-full h-full relative z-10 cursor-grab active:cursor-grabbing pointer-events-auto">
+    <div className="w-full h-full relative z-50 cursor-grab active:cursor-grabbing pointer-events-auto">
       <Canvas
         shadows
         gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }}
         camera={{ position: [4.5, 1.5, 6], fov: 25 }}
       >
-        <ambientLight intensity={1.5} />
+        <ambientLight intensity={1.0} />
         <spotLight position={[10, 15, 10]} angle={0.2} penumbra={1} intensity={2.0} castShadow />
-        <pointLight position={[-10, -10, -10]} intensity={1.5} color="#ffffff" />
 
         <Suspense fallback={null}>
           <OrbitControls
@@ -62,7 +61,7 @@ export function CarModel({ url = "/models/p1/scene.gltf", scale = 1.4 }: { url?:
             maxPolarAngle={Math.PI / 2.1}
             makeDefault
           />
-          <Model url={url} />
+          <Model url="/models/p1/scene.gltf" />
           <ContactShadows position={[0, -0.9, 0]} opacity={0.65} scale={16} blur={2.5} far={4} color="#000000" />
           <Environment preset="city" />
         </Suspense>
