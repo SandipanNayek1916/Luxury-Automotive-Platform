@@ -1,12 +1,29 @@
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
+import { prisma } from '@/lib/prisma'
 
 
 export async function POST(req: Request) {
   try {
-    const { amount, carId, customerEmail, metadata } = await req.json()
+    const { carId, customerEmail, metadata } = await req.json()
 
-    if (!amount || amount < 50) {
+    if (!carId) {
+      return NextResponse.json({ error: 'Car ID is required' }, { status: 400 })
+    }
+
+    const car = await prisma.car.findUnique({ where: { id: carId } })
+    if (!car) {
+      return NextResponse.json({ error: 'Car not found' }, { status: 404 })
+    }
+
+    // Server-side price calculation
+    const start = new Date(metadata.pickupDate)
+    const end = new Date(metadata.returnDate)
+    const diffTime = Math.abs(end.getTime() - start.getTime())
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    const amount = diffDays * car.pricePerDay
+
+    if (amount < 50) {
       return NextResponse.json({ error: 'Invalid amount' }, { status: 400 })
     }
 
@@ -19,6 +36,7 @@ export async function POST(req: Request) {
         carId,
         platform: 'unique-elite',
         ...metadata,
+        totalPrice: amount.toString(), // Ensure metadata has the correct price
       },
       // Capture manually after booking confirmation so you can verify
       // availability before charging the card

@@ -5,6 +5,8 @@ import { Providers } from "@/components/providers";
 import { Navbar } from "@/components/navbar";
 import { Toaster } from "react-hot-toast";
 import { CinematicLoader } from "@/components/ui/CinematicLoader";
+import { GlobalAtmosphere } from "@/components/ui/GlobalAtmosphere";
+import { SmoothScroll } from "@/components/ui/SmoothScroll";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
@@ -40,14 +42,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={inter.variable}>
       <body className="font-sans">
-        <Providers>
-          <CinematicLoader />
-          <Navbar />
-          {children}
-          <Toaster position="top-center" toastOptions={{
-            style: { borderRadius: "16px", fontSize: "14px" },
-          }} />
-        </Providers>
+        <SmoothScroll>
+          <Providers>
+            <GlobalAtmosphere />
+            <CinematicLoader />
+            <Navbar />
+            {children}
+            <Toaster position="top-center" toastOptions={{
+              style: { borderRadius: "16px", fontSize: "14px" },
+            }} />
+          </Providers>
+        </SmoothScroll>
       </body>
     </html>
   );

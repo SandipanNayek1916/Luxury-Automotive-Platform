@@ -43,15 +43,29 @@ function Model({ url }: { url: string }) {
 }
 
 export function CarModel() {
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <div className="w-full h-full relative z-50 cursor-grab active:cursor-grabbing pointer-events-auto">
       <Canvas
-        shadows
-        gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }}
+        shadows={!isMobile} // Disable shadows on mobile
+        gl={{ 
+          antialias: !isMobile, // Disable antialias on mobile for performance
+          toneMapping: THREE.ACESFilmicToneMapping,
+          powerPreference: "high-performance"
+        }}
+        dpr={isMobile ? [1, 1.5] : [1, 2]} // Lower DPR on mobile
         camera={{ position: [4.5, 1.5, 6], fov: 25 }}
       >
         <ambientLight intensity={1.0} />
-        <spotLight position={[10, 15, 10]} angle={0.2} penumbra={1} intensity={2.0} castShadow />
+        <spotLight position={[10, 15, 10]} angle={0.2} penumbra={1} intensity={2.0} castShadow={!isMobile} />
 
         <Suspense fallback={null}>
           <OrbitControls
@@ -62,7 +76,15 @@ export function CarModel() {
             makeDefault
           />
           <Model url="/models/p1/scene.gltf" />
-          <ContactShadows position={[0, -0.9, 0]} opacity={0.65} scale={16} blur={2.5} far={4} color="#000000" />
+          <ContactShadows 
+            position={[0, -0.9, 0]} 
+            opacity={0.65} 
+            scale={16} 
+            blur={isMobile ? 3 : 2.5} 
+            far={4} 
+            color="#000000" 
+            resolution={isMobile ? 256 : 512} // Lower resolution shadows
+          />
           <Environment preset="city" />
         </Suspense>
       </Canvas>

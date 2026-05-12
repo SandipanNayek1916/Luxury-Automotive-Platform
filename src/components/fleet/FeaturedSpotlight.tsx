@@ -61,10 +61,11 @@ export function FeaturedSpotlight({ cars, loading }: FeaturedSpotlightProps) {
                 <div className="absolute inset-0 overflow-hidden">
                   <motion.div
                     animate={{ 
-                      scale: isActive ? 1.05 : 1,
-                      opacity: isActive ? 0.75 : 0
+                      scale: isActive ? 1.02 : 1, // Reduced scale for "quiet luxury"
+                      opacity: isActive ? 0.7 : 0
                     }}
                     transition={{ duration: 6, ease: "linear" }}
+                    style={{ z: 0 }}
                     className="absolute inset-0"
                   >
                     <Image
@@ -90,7 +91,7 @@ export function FeaturedSpotlight({ cars, loading }: FeaturedSpotlightProps) {
                       transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
                       className="flex items-center gap-4 mb-10"
                     >
-                      <span className="px-5 py-2 rounded-full bg-white/10 backdrop-blur-2xl border border-white/10 text-white text-[10px] font-black tracking-[0.3em] uppercase shadow-soft">
+                      <span className="px-5 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 text-white text-[10px] font-black tracking-[0.3em] uppercase shadow-soft">
                         Elite Featured Selection
                       </span>
                       <div className="flex items-center gap-3">
@@ -175,8 +176,8 @@ export function FeaturedSpotlight({ cars, loading }: FeaturedSpotlightProps) {
           </SwiperSlide>
         ))}
         {/* Cinematic Overlays */}
-        <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-white/[0.05] to-transparent pointer-events-none z-20" />
-        <div className="absolute top-1/2 right-0 -translate-y-1/2 w-64 h-64 bg-white/[0.02] blur-[150px] rounded-full pointer-events-none z-20" />
+        <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-white/[0.03] to-transparent pointer-events-none z-20" />
+        <div className="absolute top-1/2 right-0 -translate-y-1/2 w-64 h-64 bg-white/[0.015] blur-[100px] rounded-full pointer-events-none z-20" />
       </Swiper>
       
       <style jsx global>{`

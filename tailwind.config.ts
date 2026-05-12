@@ -46,10 +46,14 @@ const config: Config = {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-10px)" },
         },
+        shimmer: {
+          "100%": { transform: "translateX(100%)" },
+        },
       },
       animation: {
         sweep: "sweep 2s cubic-bezier(0.16, 1, 0.3, 1) infinite",
         float: "float 6s ease-in-out infinite",
+        shimmer: "shimmer 2s infinite linear",
       },
     },
   },

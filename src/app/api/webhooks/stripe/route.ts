@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import Stripe from 'stripe'
+import { prisma } from '@/lib/prisma'
 
 
 export async function POST(req: Request) {
@@ -21,16 +22,9 @@ export async function POST(req: Request) {
   }
 
   switch (event.type) {
-    case 'payment_intent.created': {
-      // Log or store the intent in your DB
-      const pi = event.data.object as Stripe.PaymentIntent
-      console.log('[webhook] payment_intent.created', pi.id)
-      break
-    }
-
     case 'payment_intent.amount_capturable_updated': {
       // This fires when capture_method: 'manual' and the card is authorised.
-      // Now you can verify availability and capture (or cancel) the payment.
+      // Now we verify availability and capture (or cancel) the payment.
       const pi = event.data.object as Stripe.PaymentIntent
       const { carId, pickupDate, returnDate } = pi.metadata
 
@@ -38,20 +32,51 @@ export async function POST(req: Request) {
 
       if (available) {
         await stripe.paymentIntents.capture(pi.id)
-        await createBookingRecord(pi)
+        // Note: createBookingRecord will be called by payment_intent.succeeded
       } else {
         await stripe.paymentIntents.cancel(pi.id)
-        // Notify customer of unavailability
+        // TODO: Notify customer of unavailability
       }
       break
     }
 
-    case 'payment_intent.succeeded':
-      // Send confirmation email, update booking status
+    case 'payment_intent.succeeded': {
+      const pi = event.data.object as Stripe.PaymentIntent
+      const bookingId = pi.metadata.bookingId
+
+      // If we have a bookingId, it was an existing booking flow (automatic capture)
+      if (bookingId) {
+        await prisma.booking.update({
+          where: { id: bookingId },
+          data: {
+            status: 'CONFIRMED',
+            paymentStatus: 'PAID',
+            paymentIntentId: pi.id,
+          },
+        })
+        console.log(`[webhook] existing booking ${bookingId} confirmed`)
+      } else {
+        // If no bookingId, it's the new booking flow (manual capture)
+        const newBooking = await createBookingRecord(pi)
+        console.log(`[webhook] new booking ${newBooking.id} created and confirmed`)
+      }
       break
+    }
 
     case 'payment_intent.payment_failed': {
       const pi = event.data.object as Stripe.PaymentIntent
+      const bookingId = pi.metadata.bookingId
+
+      if (bookingId) {
+        await prisma.booking.update({
+          where: { id: bookingId },
+          data: {
+            status: 'CANCELLED',
+            paymentStatus: 'FAILED',
+            paymentIntentId: pi.id,
+          },
+        })
+      }
       console.error('[webhook] payment failed', pi.last_payment_error?.message)
       break
     }
@@ -60,22 +85,18 @@ export async function POST(req: Request) {
   return NextResponse.json({ received: true })
 }
 
-import { prisma } from '@/lib/prisma'
-
-async function checkAvailability(
-  carId: string,
-  pickup: string,
-  returnDate: string
-): Promise<boolean> {
+async function checkAvailability(carId: string, pickup: string, returnDate: string): Promise<boolean> {
   const start = new Date(pickup)
   const end = new Date(returnDate)
 
   const conflicts = await prisma.booking.findFirst({
     where: {
       carId,
-      status: { notIn: ['CANCELLED', 'FAILED'] },
+      status: { in: ['PENDING', 'CONFIRMED', 'ACTIVE'] },
       OR: [
-        { startDate: { lte: end }, endDate: { gte: start } },
+        { startDate: { lte: start }, endDate: { gte: start } },
+        { startDate: { lte: end }, endDate: { gte: end } },
+        { startDate: { gte: start }, endDate: { lte: end } },
       ]
     }
   })
@@ -86,14 +107,14 @@ async function checkAvailability(
 async function createBookingRecord(pi: Stripe.PaymentIntent) {
   const { carId, pickupDate, returnDate, userId, addons, pickupLocation, dropLocation, totalPrice } = pi.metadata
 
-  await prisma.booking.create({
+  return await prisma.booking.create({
     data: {
       userId,
       carId,
       startDate: new Date(pickupDate),
       endDate: new Date(returnDate),
-      pickupLocation: pickupLocation || 'Dubai',
-      dropLocation: dropLocation || 'Dubai',
+      pickupLocation: pickupLocation || 'Elite Terminal',
+      dropLocation: dropLocation || 'Elite Terminal',
       totalPrice: parseFloat(totalPrice),
       status: 'CONFIRMED',
       paymentStatus: 'PAID',

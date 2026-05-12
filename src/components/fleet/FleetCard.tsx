@@ -30,27 +30,27 @@ export function FleetCard({ car, index, onQuickView }: FleetCardProps) {
   return (
     <motion.div
       ref={cardRef}
-      layout
       onMouseMove={handleMouseMove}
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
+      exit={{ opacity: 0, scale: 0.98 }}
       transition={{ 
-        duration: 0.8, 
-        delay: index * 0.04,
+        duration: 0.6, 
+        delay: index * 0.02,
         ease: [0.16, 1, 0.3, 1]
       }}
+      style={{ transform: "translate3d(0,0,0)" }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="group relative bg-white rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden border border-border/50 shadow-soft transition-all duration-700 hover:shadow-elevated hover:-translate-y-2"
+      className="group relative bg-white rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden border border-border/50 shadow-soft transition-all duration-500 hover:shadow-elevated hover:-translate-y-1"
     >
       {/* Favorite Button */}
-      <button className="absolute top-6 right-6 z-10 w-11 h-11 rounded-full bg-white/70 backdrop-blur-xl border border-white/20 flex items-center justify-center text-foreground/40 hover:text-red-500 hover:bg-white transition-all duration-500 shadow-soft">
+      <button className="absolute top-6 right-6 z-10 w-11 h-11 rounded-full bg-white/70 backdrop-blur-sm border border-white/20 flex items-center justify-center text-foreground/40 hover:text-red-500 hover:bg-white transition-all duration-500 shadow-soft">
         <Heart className="w-5 h-5 transition-transform active:scale-125" />
       </button>
 
       {/* Availability Badge */}
-      <div className="absolute top-6 left-6 z-10 flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 backdrop-blur-xl border border-white/20 shadow-soft">
+      <div className="absolute top-6 left-6 z-10 flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 backdrop-blur-sm border border-white/20 shadow-soft">
         <div className={clsx(
           "w-1.5 h-1.5 rounded-full",
           car.available ? "bg-emerald-500" : "bg-amber-500"

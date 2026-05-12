@@ -178,10 +178,11 @@ function BrandCard({ brand, index }: { brand: Brand; index: number }) {
   return (
     <Link href={`/cars?brand=${encodeURIComponent(brand.name)}`} className="block w-full h-full">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 30 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        transition={{ delay: index * 0.05, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        initial={{ opacity: 0, y: 20 }} // Removed blur, reduced distance
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.98 }}
+        transition={{ delay: index * 0.04, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        style={{ transform: "translate3d(0,0,0)" }}
         onHoverStart={() => setHovered(true)}
         onHoverEnd={() => setHovered(false)}
         className="group relative h-[520px] rounded-[3rem] bg-gradient-to-b from-white/[0.04] to-transparent border border-white/5 overflow-hidden transition-all duration-700 hover:shadow-glow hover:border-white/20"
@@ -194,12 +195,13 @@ function BrandCard({ brand, index }: { brand: Brand; index: number }) {
         {/* Background Metallic Sweep — triggers on hover */}
         <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.06] to-transparent -translate-x-[150%] skew-x-[-30deg] group-hover:animate-sweep pointer-events-none" />
 
-        {/* Accent glow orb */}
+        {/* Accent glow orb - Optimized blur */}
         <div
-          className="absolute -top-16 -right-16 w-56 h-56 rounded-full blur-3xl pointer-events-none transition-all duration-1000"
+          className="absolute -top-16 -right-16 w-56 h-56 rounded-full blur-[60px] pointer-events-none transition-all duration-1000"
           style={{
             background: hovered ? accent.glow : "transparent",
             opacity: hovered ? 1 : 0,
+            z: 0
           }}
         />
 
@@ -291,13 +293,13 @@ function LuxuryEmblem({ brand, logoSrc, logoError, setLogoError, hovered, accent
       <motion.div
         className="absolute inset-0 rounded-full pointer-events-none"
         animate={hovered
-          ? { opacity: 1, scale: 1.18 }
+          ? { opacity: 1, scale: 1.15 }
           : { opacity: 0, scale: 1 }
         }
         transition={{ duration: 0.7 }}
         style={{
           background: `radial-gradient(circle, ${accent.glow} 0%, transparent 70%)`,
-          filter: "blur(8px)",
+          filter: "blur(6px)",
         }}
       />
 
@@ -323,9 +325,9 @@ function LuxuryEmblem({ brand, logoSrc, logoError, setLogoError, hovered, accent
             ? `1px solid rgba(255,255,255,0.25)`
             : `1px solid rgba(255,255,255,0.10)`,
           boxShadow: hovered
-            ? `inset 0 1px 2px rgba(255,255,255,0.3), inset 0 -1px 4px rgba(0,0,0,0.5), 0 0 24px ${accent.glow}, 0 8px 32px rgba(0,0,0,0.5)`
+            ? `inset 0 1px 2px rgba(255,255,255,0.3), inset 0 -1px 4px rgba(0,0,0,0.5), 0 0 20px ${accent.glow}, 0 6px 24px rgba(0,0,0,0.4)`
             : `inset 0 1px 1px rgba(255,255,255,0.12), inset 0 -1px 2px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.4)`,
-          backdropFilter: "blur(12px)",
+          backdropFilter: "blur(8px)",
           transition: "all 0.6s cubic-bezier(0.16,1,0.3,1)",
         }}
       >
