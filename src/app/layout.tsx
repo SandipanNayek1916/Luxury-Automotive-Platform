@@ -30,6 +30,10 @@ export const metadata: Metadata = {
     title: "Unique — Elite Automotive Experiences",
     description: "Access the world's most exclusive automotive collection.",
   },
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
