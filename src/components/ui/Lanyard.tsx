@@ -18,11 +18,11 @@ interface LanyardProps {
 }
 
 export default function Lanyard({ 
-  position = [0, 0, 20], 
-  gravity = [0, -40, 0], 
-  fov = 25, 
-  transparent = true 
-}: LanyardProps) {
+  position = [0, 0, 15], 
+  gravity = [0, -40, 0],
+  fov = 25,
+  transparent = true
+}) {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function Lanyard({
   return (
     <div className="lanyard-wrapper">
       <Canvas
-        camera={{ position: position, fov: fov }}
+        camera={{ position: position as [number, number, number], fov: fov }}
         dpr={[1, isMobile ? 1.5 : 2]}
         gl={{ alpha: transparent, antialias: true }}
         onCreated={({ gl }) => {
