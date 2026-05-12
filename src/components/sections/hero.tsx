@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCinematicBridge } from "@/lib/cinematic-bridge";
+import { CarModel } from "@/components/ui/CarModel";
 
 const HERO_BRANDS = ["Lamborghini", "BMW", "Tesla", "Cadillac", "Porsche", "Mercedes", "Lexus", "Ferrari"];
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -183,7 +184,7 @@ export function HeroSection() {
         animate={{ scale: 1 }}
         transition={{ duration: 8, ease: [0.16, 1, 0.3, 1] }}
         style={{ transform: tilt, transition: tilt ? "transform 0.4s cubic-bezier(0.16,1,0.3,1)" : undefined }}
-        className="relative w-full max-w-[1500px] bg-card rounded-[3rem] lg:rounded-[4.5rem] shadow-elevated overflow-hidden border border-border/50"
+        className="relative w-full max-w-[1500px] bg-card rounded-[3rem] lg:rounded-[4.5rem] shadow-elevated overflow-visible border border-border/50"
       >
         {/* Card grid texture */}
         <div className="absolute inset-0 opacity-[0.02] pointer-events-none">
@@ -262,30 +263,15 @@ export function HeroSection() {
 
           {/* ── Right: Car image ─────────────────────────────────────────────── */}
           <div className="relative flex items-center justify-center lg:justify-end lg:pr-20 group">
-            <div className="relative w-full max-w-3xl">
-              <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[70%] h-14 bg-gradient-to-t from-black/20 to-transparent blur-3xl rounded-full opacity-50" />
-
+            <div className="relative w-full max-w-none overflow-visible">
               <motion.div
                 variants={slideRight} custom={0}
                 animate={carCtrl} initial="hidden"
-                className="relative z-10 animate-float"
+                className="relative z-10 w-[150%] -ml-[25%] h-[400px] md:h-[600px] flex items-center justify-center overflow-visible"
               >
-                <Image
-                  src="/images/gt3rs.jpg"
-                  alt="Porsche GT3 RS"
-                  width={1000} height={600}
-                  className="w-full h-auto object-contain drop-shadow-[0_40px_100px_rgba(0,0,0,0.15)] group-hover:scale-[1.02] transition-transform duration-1000"
-                  priority
-                />
-              </motion.div>
-
-              <motion.div
-                variants={fadeIn} custom={0}
-                animate={hudCtrl} initial="hidden"
-                className="absolute -top-10 -right-10 w-40 h-40 border border-foreground/[0.03] rounded-full flex items-center justify-center"
-              >
-                <div className="w-32 h-32 border border-foreground/[0.05] rounded-full animate-[spin_20s_linear_infinite]" />
-                <span className="absolute text-[8px] font-black tracking-[0.4em] text-foreground/20 uppercase">Aero Dynamics</span>
+                <div className="w-full h-full">
+                  <CarModel />
+                </div>
               </motion.div>
             </div>
           </div>
@@ -308,7 +294,7 @@ export function HeroSection() {
                   onClick={() => router.push(`/cars?brand=${encodeURIComponent(brand)}`)}
                   className="group relative flex items-center justify-center cursor-pointer"
                 >
-                  <span className="text-[11px] font-bold tracking-widest uppercase text-muted/40 group-hover:text-foreground transition-colors duration-500">{brand}</span>
+                  <span className="text-[11px] font-bold tracking-widest uppercase text-foreground group-hover:text-foreground/70 transition-colors duration-500">{brand}</span>
                   <div className="absolute -bottom-2 left-0 w-0 h-[1px] bg-foreground group-hover:w-full transition-all duration-500" />
                 </motion.button>
               ))}
