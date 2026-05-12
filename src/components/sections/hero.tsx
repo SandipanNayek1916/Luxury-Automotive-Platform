@@ -53,25 +53,38 @@ export function HeroSection() {
   const sweepControls = useAnimation();
   const overlayControls = useAnimation();
 
+  const isMounted = useRef(false);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => { isMounted.current = false; };
+  }, []);
+
   // Trigger staggered reveal when loader starts exiting
   useEffect(() => {
-    if (!loaderExiting || revealed) return;
+    if (!loaderExiting || revealed || !isMounted.current) return;
     setRevealed(true);
 
     async function runReveal() {
-      // 1. Fade the protective overlay (matches loader color)
-      overlayControls.start({ opacity: 0, transition: { duration: 1.5, ease: EASE } });
+      try {
+        // 1. Fade the protective overlay (matches loader color)
+        await overlayControls.start({ opacity: 0, transition: { duration: 1.5, ease: EASE } });
 
-      // 2. Headlight sweep (continuity from loader)
-      sweepControls.start({
-        x: ["-110%", "110%"],
-        opacity: [0, 0.5, 0],
-        transition: { duration: 1.2, ease: [0.4, 0, 0.2, 1] }
-      });
+        // 2. Headlight sweep (continuity from loader)
+        sweepControls.start({
+          x: ["-110%", "110%"],
+          opacity: [0, 0.5, 0],
+          transition: { duration: 1.2, ease: [0.4, 0, 0.2, 1] }
+        });
 
-      // 3. Reveal content
-      await new Promise(r => setTimeout(r, 400));
-      contentControls.start("visible");
+        // 3. Reveal content
+        await new Promise(r => setTimeout(r, 400));
+        if (isMounted.current) {
+          contentControls.start("visible");
+        }
+      } catch (e) {
+        // Ignore animation errors on unmount
+      }
     }
 
     runReveal();
@@ -80,12 +93,12 @@ export function HeroSection() {
   // Fallback reveal
   useEffect(() => {
     const t = setTimeout(() => {
-      if (!revealed) {
+      if (!revealed && isMounted.current) {
         setRevealed(true);
         overlayControls.start({ opacity: 0 });
         contentControls.start("visible");
       }
-    }, 500);
+    }, 1500); // Increased fallback time
     return () => clearTimeout(t);
   }, [revealed, overlayControls, contentControls]);
 
