@@ -5,9 +5,9 @@ import { motion, useInView } from "framer-motion";
 import { Star } from "lucide-react";
 
 const testimonials = [
-  { name: "James Richardson", role: "CEO, TechVentures", text: "The most seamless luxury car rental experience I've ever had. The Porsche 911 was immaculate.", rating: 5 },
-  { name: "Sarah Chen", role: "Creative Director", text: "Unique delivers on every promise. From booking to return, everything was flawless.", rating: 5 },
-  { name: "Marcus Webb", role: "Investor", text: "I've rented from every premium service. Unique stands alone in quality and attention to detail.", rating: 5 },
+  { name: "Julian V.", role: "P1 Collector", text: "The P1 handover was breathtaking. I've dealt with many agencies, but the technical knowledge and white-glove service at Unique is on another level. Absolutely flawless.", rating: 5 },
+  { name: "Elena S.", role: "Lifestyle Curator", text: "Finally, a service that understands the nuances of true luxury. The car was pristine, the logistics were invisible, and the experience was truly 'Unique'.", rating: 5 },
+  { name: "Mark Thorne", role: "Venture Partner", text: "From the track-day coordination to the private delivery, everything felt bespoke. This isn't just a rental; it's an entry into a very exclusive world.", rating: 5 },
 ];
 
 export function TestimonialsSection() {

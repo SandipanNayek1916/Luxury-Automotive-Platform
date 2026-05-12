@@ -42,14 +42,8 @@ export default function Lanyard({
           gl.setClearColor(new THREE.Color(0x000000), transparent ? 0 : 1);
         }}
       >
-        <ambientLight intensity={Math.PI / 2} />
-        <Physics gravity={gravity as any} timeStep={isMobile ? 1 / 30 : 1 / 60}>
-          <Suspense fallback={null}>
-            <Band isMobile={isMobile} />
-          </Suspense>
-        </Physics>
-        
-        <Environment blur={0.75}>
+        <ambientLight intensity={Math.PI} />
+        <Environment preset="city" blur={0.75}>
           <Lightformer
             intensity={2}
             color="white"
@@ -74,11 +68,17 @@ export default function Lanyard({
           <Lightformer
             intensity={10}
             color="white"
-            position={[-10, 0, 14]}
+            position={[-10, 10, 10]}
             rotation={[0, Math.PI / 2, Math.PI / 3]}
-            scale={[100, 10, 1]}
+            scale={[100, 0.1, 1]}
           />
         </Environment>
+
+        <Physics gravity={gravity as any} timeStep={isMobile ? 1 / 30 : 1 / 60}>
+          <Suspense fallback={null}>
+            <Band isMobile={isMobile} />
+          </Suspense>
+        </Physics>
       </Canvas>
     </div>
   );

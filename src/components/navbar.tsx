@@ -28,8 +28,8 @@ export function Navbar() {
     <div className="fixed top-0 left-0 right-0 z-50 flex justify-center">
       <PillNav
         logo={
-          <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center border border-white/10 shadow-elevated">
-            <span className="text-white font-bold text-sm">U</span>
+          <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center border border-white/10 shadow-elevated overflow-hidden">
+            <img src="/logo.png" alt="Unique Logo" className="w-full h-full object-cover scale-110" />
           </div>
         }
         items={items}

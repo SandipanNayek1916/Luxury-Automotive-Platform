@@ -73,7 +73,7 @@ export function ConciergeSection() {
               className="relative z-10"
             >
               <div className="absolute inset-0 bg-gradient-to-tr from-foreground/[0.02] to-transparent rounded-[3rem] -rotate-3" />
-              <Lanyard position={[0, 0, 18]} gravity={[0, -30, 0]} />
+              <Lanyard position={[0, 1.5, 12]} gravity={[0, -40, 0]} />
               
               {/* Floating label */}
               <motion.div 

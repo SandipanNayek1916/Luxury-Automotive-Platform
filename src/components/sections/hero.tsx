@@ -237,6 +237,19 @@ export function HeroSection() {
               ))}
             </div>
           </div>
+          
+          {/* Bottom Fade & Scroll Indicator */}
+          <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-background via-background/80 to-transparent z-20 pointer-events-none" />
+          
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 2, duration: 1, repeat: Infinity, repeatType: "reverse" }}
+            className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2"
+          >
+            <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-muted/50">Explore</span>
+            <div className="w-[1px] h-12 bg-gradient-to-b from-foreground/20 to-transparent" />
+          </motion.div>
         </motion.div>
       </motion.div>
     </section>
