@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { ArrowRight, Gauge, Zap, Wind } from "lucide-react";
@@ -21,7 +22,17 @@ interface FeaturedSpotlightProps {
 }
 
 export function FeaturedSpotlight({ cars, loading }: FeaturedSpotlightProps) {
-  if (loading || !cars || cars.length === 0) {
+  const [shuffledCars, setShuffledCars] = useState<Car[]>([]);
+
+  // Shuffle only once on mount or when the cars array significantly changes
+  useEffect(() => {
+    if (cars && cars.length > 0) {
+      const shuffled = [...cars].sort(() => Math.random() - 0.5).slice(0, 6);
+      setShuffledCars(shuffled);
+    }
+  }, [cars.length]); // Only reshuffle if the total car count changes
+
+  if (loading || !shuffledCars || shuffledCars.length === 0) {
     return (
       <div className="relative w-full h-[600px] lg:h-[700px] bg-black/[0.03] rounded-[48px] animate-pulse mb-20" />
     );
@@ -32,7 +43,9 @@ export function FeaturedSpotlight({ cars, loading }: FeaturedSpotlightProps) {
       <Swiper
         modules={[Autoplay, EffectFade, Pagination]}
         effect="fade"
+        fadeEffect={{ crossFade: true }}
         autoplay={{ delay: 6000, disableOnInteraction: false }}
+        speed={1500} // Much smoother, slower cross-fade
         pagination={{ 
           clickable: true, 
           renderBullet: (index, className) => `<span class="${className} !w-12 !h-1 !rounded-full !bg-white/20 transition-all duration-500"></span>`
@@ -40,14 +53,17 @@ export function FeaturedSpotlight({ cars, loading }: FeaturedSpotlightProps) {
         loop={true}
         className="w-full h-[650px] lg:h-[800px]"
       >
-        {cars.map((car) => (
+        {shuffledCars.map((car) => (
           <SwiperSlide key={car.id}>
             {({ isActive }) => (
               <div className="relative w-full h-full">
                 {/* Immersive Background Image */}
                 <div className="absolute inset-0 overflow-hidden">
                   <motion.div
-                    animate={{ scale: isActive ? 1.1 : 1 }}
+                    animate={{ 
+                      scale: isActive ? 1.05 : 1,
+                      opacity: isActive ? 0.75 : 0
+                    }}
                     transition={{ duration: 6, ease: "linear" }}
                     className="absolute inset-0"
                   >
@@ -55,7 +71,7 @@ export function FeaturedSpotlight({ cars, loading }: FeaturedSpotlightProps) {
                       src={car.heroImage || car.showcaseImage || car.mainImage}
                       alt={car.name}
                       fill
-                      className="object-cover opacity-70"
+                      className="object-cover"
                       priority
                     />
                   </motion.div>

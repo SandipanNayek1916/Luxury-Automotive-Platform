@@ -1,18 +1,23 @@
-export { };
+import { ThreeElements } from '@react-three/fiber'
+import { MeshLineGeometry, MeshLineMaterial } from 'meshline'
 
-declare module '*.glb';
-declare module '*.png';
+export { }
+
+declare module '*.glb'
+declare module '*.png'
 
 declare module 'meshline' {
-  export const MeshLineGeometry: any;
-  export const MeshLineMaterial: any;
+  export const MeshLineGeometry: any
+  export const MeshLineMaterial: any
 }
 
 declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      meshLineGeometry: any;
-      meshLineMaterial: any;
+  namespace React {
+    namespace JSX {
+      interface IntrinsicElements extends ThreeElements {
+        meshLineGeometry: any
+        meshLineMaterial: any
+      }
     }
   }
 }
