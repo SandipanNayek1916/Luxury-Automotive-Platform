@@ -8,6 +8,7 @@ import PillNav from "./ui/PillNav";
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Cars", href: "/cars" },
+  { label: "Membership", href: "/membership" },
   { label: "About", href: "/#about" },
   { label: "Features", href: "/#features" },
 ];

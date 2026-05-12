@@ -234,7 +234,15 @@ export function HeroSection() {
             className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2"
           >
             <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-muted/50">Explore</span>
-            <div className="w-[1px] h-12 bg-gradient-to-b from-foreground/20 to-transparent" />
+            <svg 
+              className="w-5 h-5 text-foreground/40" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2.5" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
           </motion.div>
         </motion.div>
       </motion.div>

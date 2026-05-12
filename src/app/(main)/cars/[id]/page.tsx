@@ -39,30 +39,8 @@ export default function CarDetailPage() {
   const days = startDate && endDate ? calculateDays(new Date(startDate), new Date(endDate)) : 0;
   const total = days * (car?.pricePerDay || 0);
 
-  const handleBook = async () => {
-    if (!session) { toast.error("Please sign in to book"); router.push("/login"); return; }
-    if (!startDate || !endDate) { toast.error("Select dates"); return; }
-    if (days < 1) { toast.error("Minimum 1 day rental"); return; }
-
-    const res = await fetch("/api/bookings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        carId: id,
-        startDate,
-        endDate,
-        pickupLocation: pickup,
-        dropLocation: pickup,
-        totalPrice: total,
-      }),
-    });
-    const booking = await res.json();
-    if (res.ok) {
-      toast.success("Booking created! Proceed to payment.");
-      router.push(`/bookings`);
-    } else {
-      toast.error(booking.error || "Booking failed");
-    }
+  const handleBook = () => {
+    router.push(`/cars/${id}/book`);
   };
 
   if (isLoading) return (

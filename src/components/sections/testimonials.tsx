@@ -5,9 +5,9 @@ import { motion, useInView } from "framer-motion";
 import { Star } from "lucide-react";
 
 const testimonials = [
-  { name: "Julian V.", role: "P1 Collector", text: "The P1 handover was breathtaking. I've dealt with many agencies, but the technical knowledge and white-glove service at Unique is on another level. Absolutely flawless.", rating: 5 },
-  { name: "Elena S.", role: "Lifestyle Curator", text: "Finally, a service that understands the nuances of true luxury. The car was pristine, the logistics were invisible, and the experience was truly 'Unique'.", rating: 5 },
-  { name: "Mark Thorne", role: "Venture Partner", text: "From the track-day coordination to the private delivery, everything felt bespoke. This isn't just a rental; it's an entry into a very exclusive world.", rating: 5 },
+  { name: "Julian V.", role: "P1 Owner", text: "The handover of the Senna was a masterclass in hospitality. I've used global services in London and Tokyo, but the attention to mechanical detail here is unparalleled. It's rare to find a team that cares about the engine as much as the aesthetics.", rating: 5 },
+  { name: "Elena S.", role: "Fashion Director", text: "Logistics are usually the bottleneck in high-end rentals. Unique handled the transport of the 296 GTB to my villa with such precision I didn't even notice them arrive. The car was, quite simply, immaculate.", rating: 5 },
+  { name: "Marcus T.", role: "Tech Founder", text: "Finding a service that doesn't just treat these cars like commodities is refreshing. The private track afternoon was perfectly orchestrated—instructor, telemetry, and a car that felt brand new. This is the gold standard.", rating: 5 },
 ];
 
 export function TestimonialsSection() {

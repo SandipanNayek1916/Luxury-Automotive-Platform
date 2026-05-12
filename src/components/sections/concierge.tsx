@@ -1,16 +1,23 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import Lanyard from "@/components/ui/Lanyard";
 import { Sparkles, Crown, ShieldCheck, Zap } from "lucide-react";
 
 export function ConciergeSection() {
+  const router = useRouter();
   return (
-    <section className="relative py-24 lg:py-32 overflow-hidden bg-[#fafafa]">
+    <section className="relative py-24 lg:py-32 overflow-hidden bg-black text-white">
       {/* Premium Background Elements */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-foreground/[0.02] rounded-full blur-[120px] -translate-y-1/2" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-foreground/[0.02] rounded-full blur-[120px] translate-y-1/2" />
+      <div className="absolute inset-0 z-0">
+        <img 
+          src="/images/black-card-bg.jpg" 
+          alt="" 
+          className="w-full h-full object-cover opacity-20 mix-blend-overlay"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
+      </div>
 
       <div className="max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -37,12 +44,12 @@ export function ConciergeSection() {
                 Join our most exclusive tier. A dedicated concierge, global track access, and priority delivery for every new hypercar in our fleet.
               </p>
               
-              <div className="grid sm:grid-cols-2 gap-8">
+              <div className="grid sm:grid-cols-2 gap-8 mb-12">
                 {[
-                  { icon: <Crown className="w-5 h-5" />, title: "VIP Access", desc: "Priority booking for all new arrivals." },
-                  { icon: <Sparkles className="w-5 h-5" />, title: "Concierge", desc: "24/7 dedicated personal assistant." },
-                  { icon: <ShieldCheck className="w-5 h-5" />, title: "Full Coverage", desc: "No-questions-asked insurance policy." },
-                  { icon: <Zap className="w-5 h-5" />, title: "Track Days", desc: "Monthly private track session invites." }
+                  { icon: <Crown className="w-5 h-5" />, title: "The Founders Club", desc: "Guaranteed access to the first production units of any new fleet additions." },
+                  { icon: <Sparkles className="w-5 h-5" />, title: "Elite Concierge", desc: "A dedicated 24/7 personal manager for logistics, track days, and travel." },
+                  { icon: <ShieldCheck className="w-5 h-5" />, title: "Full Shield", desc: "Comprehensive zero-liability protection and private transport security." },
+                  { icon: <Zap className="w-5 h-5" />, title: "Private Tracks", desc: "Unlimited invitations to private testing sessions at international circuits." }
                 ].map((feature, i) => (
                   <motion.div
                     key={i}
@@ -60,6 +67,20 @@ export function ConciergeSection() {
                   </motion.div>
                 ))}
               </div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.5 }}
+              >
+                <button 
+                  onClick={() => router.push('/membership')}
+                  className="bg-foreground text-white px-10 py-5 rounded-full text-[13px] font-bold tracking-widest uppercase hover:bg-foreground/90 transition-all hover:scale-[1.05] active:scale-95 shadow-elevated"
+                >
+                  Apply for Membership
+                </button>
+              </motion.div>
             </motion.div>
           </div>
 
