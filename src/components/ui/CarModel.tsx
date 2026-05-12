@@ -62,7 +62,7 @@ export function CarModel() {
             makeDefault
           />
           <Model url="/models/p1/scene.gltf" />
-          <ContactShadows position={[0, -0.9]} opacity={0.65} scale={16} blur={2.5} far={4} color="#000000" />
+          <ContactShadows position={[0, -0.9, 0]} opacity={0.65} scale={16} blur={2.5} far={4} color="#000000" />
           <Environment preset="city" />
         </Suspense>
       </Canvas>

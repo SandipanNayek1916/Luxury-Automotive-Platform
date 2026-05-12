@@ -273,10 +273,10 @@ const PillNav = ({
           </a>
         )}
 
-        <div className="pill-nav-items desktop-only" ref={navItemsRef}>
+        <div className="pill-nav-items" ref={navItemsRef}>
           <ul className="pill-list" role="menubar">
             {items.map((item, i) => (
-              <li key={item.href || `item-${i}`} role="none">
+              <li key={item.href || `item-${i}`} role="none" className={i > 2 ? "hidden md:list-item" : ""}>
                 {isRouterLink(item.href) ? (
                   <Link
                     role="menuitem"
