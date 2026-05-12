@@ -1,9 +1,10 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useCinematicBridge } from "@/lib/cinematic-bridge";
 import { CarModel } from "@/components/ui/CarModel";
 
 const HERO_BRANDS = ["Lamborghini", "BMW", "Tesla", "Cadillac", "Porsche", "Mercedes", "Lexus", "Ferrari"];
@@ -44,6 +45,50 @@ export function HeroSection() {
   const [tilt, setTilt] = useState("");
   const router = useRouter();
 
+  // ── Bridge logic ───────────────────────────────────────────────────────────
+  const { loaderExiting } = useCinematicBridge();
+  const [revealed, setRevealed] = useState(false);
+  
+  const contentControls = useAnimation();
+  const sweepControls = useAnimation();
+  const overlayControls = useAnimation();
+
+  // Trigger staggered reveal when loader starts exiting
+  useEffect(() => {
+    if (!loaderExiting || revealed) return;
+    setRevealed(true);
+
+    async function runReveal() {
+      // 1. Fade the protective overlay (matches loader color)
+      overlayControls.start({ opacity: 0, transition: { duration: 1.5, ease: EASE } });
+
+      // 2. Headlight sweep (continuity from loader)
+      sweepControls.start({
+        x: ["-110%", "110%"],
+        opacity: [0, 0.5, 0],
+        transition: { duration: 1.2, ease: [0.4, 0, 0.2, 1] }
+      });
+
+      // 3. Reveal content
+      await new Promise(r => setTimeout(r, 400));
+      contentControls.start("visible");
+    }
+
+    runReveal();
+  }, [loaderExiting, revealed, overlayControls, sweepControls, contentControls]);
+
+  // Fallback reveal
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (!revealed) {
+        setRevealed(true);
+        overlayControls.start({ opacity: 0 });
+        contentControls.start("visible");
+      }
+    }, 500);
+    return () => clearTimeout(t);
+  }, [revealed, overlayControls, contentControls]);
+
   // ── Mouse parallax tilt ───────────────────────────────────────────────────
   useEffect(() => {
     const handleMouse = (e: MouseEvent) => {
@@ -61,6 +106,23 @@ export function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center justify-center px-6 lg:px-12 pt-28 pb-20 overflow-hidden bg-background">
       
+      {/* ── Cinematic Overlay (Matches Loader Color #F2F0ED) ────────────────── */}
+      <motion.div
+        animate={overlayControls}
+        initial={{ opacity: 1 }}
+        className="fixed inset-0 z-[9000] pointer-events-none bg-[#F2F0ED]"
+      />
+
+      {/* ── Reflection Sweep (Continues Loader Energy) ─────────────────────── */}
+      <motion.div
+        animate={sweepControls}
+        initial={{ x: "-110%", opacity: 0 }}
+        className="absolute inset-0 pointer-events-none z-20"
+        style={{
+          background: "linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.4) 50%, transparent 70%)",
+        }}
+      />
+
       {/* ── Background Glows ─────────────────────────────────────────────────── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-foreground/[0.02] blur-[120px] rounded-full -translate-y-1/2 translate-x-1/4" />
@@ -70,7 +132,7 @@ export function HeroSection() {
       <motion.div
         ref={tiltRef}
         initial="hidden"
-        animate="visible"
+        animate={contentControls}
         style={{ transform: tilt, transition: tilt ? "transform 0.4s cubic-bezier(0.16,1,0.3,1)" : undefined }}
         className="relative w-full max-w-[1500px] bg-card rounded-[3rem] lg:rounded-[4.5rem] shadow-elevated overflow-visible border border-border/50"
       >
