@@ -2,7 +2,6 @@ import { HeroSection } from "@/components/sections/hero";
 import { FleetSection } from "@/components/sections/fleet";
 import { BrandsShowcase } from "@/components/fleet/BrandsShowcase";
 import { AppSection } from "@/components/sections/app-section";
-import { ConciergeSection } from "@/components/sections/concierge";
 import { FeaturesSection } from "@/components/sections/features";
 import { StatsSection } from "@/components/sections/stats";
 import { TestimonialsSection } from "@/components/sections/testimonials";
@@ -15,7 +14,6 @@ export default function Home() {
       <BrandsShowcase />
       <FleetSection />
       <AppSection />
-      <ConciergeSection />
       <FeaturesSection />
       <StatsSection />
       <TestimonialsSection />
