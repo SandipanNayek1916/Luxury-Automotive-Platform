@@ -199,7 +199,7 @@ export function HeroSection() {
               custom={0.4}
               className="relative w-full h-[400px] md:h-[600px] lg:h-[700px] flex items-center justify-center overflow-visible"
             >
-              <div className="w-[140%] h-full lg:-mr-20">
+              <div className="w-full h-full">
                 <CarModel />
               </div>
 

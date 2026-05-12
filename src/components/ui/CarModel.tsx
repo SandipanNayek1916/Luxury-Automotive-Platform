@@ -35,8 +35,8 @@ function Model({ url }: { url: string }) {
 
   return (
     <group ref={ref}>
-      <Center position={[0, 0, 0]}>
-        <primitive object={scene} scale={1.65} />
+      <Center top position={[0, 0, 0]}>
+        <primitive object={scene} scale={1.4} />
       </Center>
     </group>
   );
@@ -48,7 +48,7 @@ export function CarModel() {
       <Canvas
         shadows
         gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }}
-        camera={{ position: [3, 1.2, 4.5], fov: 28 }}
+        camera={{ position: [4.5, 1.5, 6], fov: 25 }}
       >
         <ambientLight intensity={1.0} />
         <spotLight position={[10, 15, 10]} angle={0.2} penumbra={1} intensity={2.0} castShadow />
