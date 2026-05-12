@@ -48,59 +48,24 @@ export function HeroSection() {
   // ── Bridge logic ───────────────────────────────────────────────────────────
   const { loaderExiting } = useCinematicBridge();
   const [revealed, setRevealed] = useState(false);
+  const [showSweep, setShowSweep] = useState(false);
   
-  const contentControls = useAnimation();
-  const sweepControls = useAnimation();
-  const overlayControls = useAnimation();
-
-  const isMounted = useRef(false);
-
+  // Trigger reveal when loader starts exiting
   useEffect(() => {
-    isMounted.current = true;
-    return () => { isMounted.current = false; };
-  }, []);
-
-  // Trigger staggered reveal when loader starts exiting
-  useEffect(() => {
-    if (!loaderExiting || revealed || !isMounted.current) return;
-    setRevealed(true);
-
-    async function runReveal() {
-      try {
-        // 1. Fade the protective overlay (matches loader color)
-        await overlayControls.start({ opacity: 0, transition: { duration: 1.5, ease: EASE } });
-
-        // 2. Headlight sweep (continuity from loader)
-        sweepControls.start({
-          x: ["-110%", "110%"],
-          opacity: [0, 0.5, 0],
-          transition: { duration: 1.2, ease: [0.4, 0, 0.2, 1] }
-        });
-
-        // 3. Reveal content
-        await new Promise(r => setTimeout(r, 400));
-        if (isMounted.current) {
-          contentControls.start("visible");
-        }
-      } catch (e) {
-        // Ignore animation errors on unmount
-      }
+    if (loaderExiting && !revealed) {
+      setRevealed(true);
+      // Stagger the sweep slightly
+      setTimeout(() => setShowSweep(true), 100);
     }
+  }, [loaderExiting, revealed]);
 
-    runReveal();
-  }, [loaderExiting, revealed, overlayControls, sweepControls, contentControls]);
-
-  // Fallback reveal
+  // Fallback for safety
   useEffect(() => {
     const t = setTimeout(() => {
-      if (!revealed && isMounted.current) {
-        setRevealed(true);
-        overlayControls.start({ opacity: 0 });
-        contentControls.start("visible");
-      }
-    }, 1500); // Increased fallback time
+      if (!revealed) setRevealed(true);
+    }, 2000);
     return () => clearTimeout(t);
-  }, [revealed, overlayControls, contentControls]);
+  }, [revealed]);
 
   // ── Mouse parallax tilt ───────────────────────────────────────────────────
   useEffect(() => {
@@ -121,20 +86,27 @@ export function HeroSection() {
       
       {/* ── Cinematic Overlay (Matches Loader Color #F2F0ED) ────────────────── */}
       <motion.div
-        animate={overlayControls}
         initial={{ opacity: 1 }}
+        animate={{ opacity: revealed ? 0 : 1 }}
+        transition={{ duration: 1.5, ease: EASE }}
         className="fixed inset-0 z-[9000] pointer-events-none bg-[#F2F0ED]"
       />
 
       {/* ── Reflection Sweep (Continues Loader Energy) ─────────────────────── */}
-      <motion.div
-        animate={sweepControls}
-        initial={{ x: "-110%", opacity: 0 }}
-        className="absolute inset-0 pointer-events-none z-20"
-        style={{
-          background: "linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.4) 50%, transparent 70%)",
-        }}
-      />
+      {showSweep && (
+        <motion.div
+          initial={{ x: "-110%", opacity: 0 }}
+          animate={{ 
+            x: "110%", 
+            opacity: [0, 0.5, 0] 
+          }}
+          transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
+          className="absolute inset-0 pointer-events-none z-20"
+          style={{
+            background: "linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.4) 50%, transparent 70%)",
+          }}
+        />
+      )}
 
       {/* ── Background Glows ─────────────────────────────────────────────────── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -145,7 +117,7 @@ export function HeroSection() {
       <motion.div
         ref={tiltRef}
         initial="hidden"
-        animate={contentControls}
+        animate={revealed ? "visible" : "hidden"}
         style={{ transform: tilt, transition: tilt ? "transform 0.4s cubic-bezier(0.16,1,0.3,1)" : undefined }}
         className="relative w-full max-w-[1500px] bg-card rounded-[3rem] lg:rounded-[4.5rem] shadow-elevated overflow-visible border border-border/50"
       >
@@ -227,6 +199,7 @@ export function HeroSection() {
 
         {/* ── Brand strip ──────────────────────────────────────────────────── */}
         <motion.div
+          animate={revealed ? "visible" : "hidden"}
           variants={fadeIn}
           custom={0.8}
           className="relative z-10 border-t border-border/50 px-10 lg:px-24 py-10 bg-foreground/[0.01]"
