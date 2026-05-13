@@ -22,6 +22,7 @@ const newBrands = [
   { name: "Subaru", country: "Japan", foundedYear: 1953, valuation: "$15B", category: "Motorsport Legends", flagshipModel: "WRX STI S209", description: "Confidence in motion.", logo: "subaru", featured: false },
   { name: "Mitsubishi", country: "Japan", foundedYear: 1970, valuation: "$8B", category: "Motorsport Legends", flagshipModel: "Lancer Evolution IX", description: "Drive your ambition.", logo: "mitsubishi", featured: false },
   { name: "Alfa Romeo", country: "Italy", foundedYear: 1910, valuation: "$5B", category: "Sports Luxury", flagshipModel: "Giulia Quadrifoglio", description: "La meccanica delle emozioni.", logo: "alfa-romeo", featured: false },
+  { name: "Mercedes-Benz", country: "Germany", foundedYear: 1926, valuation: "$82.4B", category: "Luxury & Performance", flagshipModel: "CLK GTR Roadster", description: "The pinnacle of German engineering, luxury, and high-performance automotive excellence.", logo: "mercedes-benz", featured: true },
 ];
 
 const newCars = [
@@ -259,8 +260,8 @@ async function main() {
           soundProfile: c.category.includes("Electric") ? "Silent" : "Aggressive",
           features: JSON.stringify(["Leather", "Carbon Fiber", "Premium Audio"]),
           tags: JSON.stringify([c.category, c.rarity]),
-          images: JSON.stringify([`/images/placeholder.jpg`]),
-          mainImage: `/images/placeholder.jpg`,
+          images: JSON.stringify([`/images/placeholder.png`]),
+          mainImage: `/images/placeholder.png`,
           location: "New York",
           available: true,
           featured: c.featured,

@@ -59,6 +59,7 @@ const BRAND_ACCENTS: Record<string, { glow: string; ring: string; reflection: st
   Subaru:        { glow: "rgba(37,99,235,0.14)",   ring: "rgba(37,99,235,0.28)",   reflection: "rgba(147,197,253,0.10)" },
   Mitsubishi:    { glow: "rgba(220,38,38,0.12)",   ring: "rgba(220,38,38,0.25)",   reflection: "rgba(248,113,113,0.10)" },
   "Alfa Romeo":  { glow: "rgba(185,28,28,0.15)",   ring: "rgba(185,28,28,0.30)",   reflection: "rgba(239,68,68,0.12)" },
+  "Mercedes-Benz":{ glow: "rgba(156,163,175,0.20)", ring: "rgba(209,213,219,0.40)", reflection: "rgba(255,255,255,0.14)" },
 };
 
 function getBrandAccent(name: string) {
