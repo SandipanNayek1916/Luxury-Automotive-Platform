@@ -109,21 +109,21 @@ export function BookingProvider({
 
   const totalPrice = baseTotal + addonTotal
 
-  const value: BookingContextType = {
+  const value: BookingContextType = useMemo(() => ({
     state,
-    setStep: (step) => dispatch({ type: 'SET_STEP', payload: step }),
-    setDates: (dates) => dispatch({ type: 'SET_DATES', payload: dates }),
-    setPickupTime: (t) => dispatch({ type: 'SET_PICKUP_TIME', payload: t }),
-    setReturnTime: (t) => dispatch({ type: 'SET_RETURN_TIME', payload: t }),
-    setCollectionPoint: (p) => dispatch({ type: 'SET_COLLECTION_POINT', payload: p }),
-    setReturnPoint: (p) => dispatch({ type: 'SET_RETURN_POINT', payload: p }),
-    toggleAddon: (id) => dispatch({ type: 'TOGGLE_ADDON', payload: id }),
-    setPaymentIntent: (id) => dispatch({ type: 'SET_PAYMENT_INTENT', payload: id }),
-    setReservationRef: (ref) => dispatch({ type: 'SET_RESERVATION_REF', payload: ref }),
+    setStep: (step: BookingStep) => dispatch({ type: 'SET_STEP', payload: step }),
+    setDates: (dates: DateRange) => dispatch({ type: 'SET_DATES', payload: dates }),
+    setPickupTime: (t: string) => dispatch({ type: 'SET_PICKUP_TIME', payload: t }),
+    setReturnTime: (t: string) => dispatch({ type: 'SET_RETURN_TIME', payload: t }),
+    setCollectionPoint: (p: string) => dispatch({ type: 'SET_COLLECTION_POINT', payload: p }),
+    setReturnPoint: (p: string) => dispatch({ type: 'SET_RETURN_POINT', payload: p }),
+    toggleAddon: (id: AddonId['id']) => dispatch({ type: 'TOGGLE_ADDON', payload: id }),
+    setPaymentIntent: (id: string) => dispatch({ type: 'SET_PAYMENT_INTENT', payload: id }),
+    setReservationRef: (ref: string) => dispatch({ type: 'SET_RESERVATION_REF', payload: ref }),
     totalPrice,
     addonTotal,
     baseTotal,
-  }
+  }), [state, totalPrice, addonTotal, baseTotal])
 
   return <BookingContext.Provider value={value}>{children}</BookingContext.Provider>
 }

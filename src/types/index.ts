@@ -29,6 +29,7 @@ export interface Car {
   location: string;
   available: boolean;
   featured: boolean;
+  rarity: string;
   createdAt: string;
   updatedAt: string;
   // Media-resolved fields (populated by API when CarMedia records exist)

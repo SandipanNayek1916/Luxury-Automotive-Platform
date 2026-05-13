@@ -24,7 +24,7 @@ export interface Brand {
   featured: boolean;
 }
 
-const CATEGORIES = ["All", "Hypercar", "Luxury", "Electric", "Motorsport", "JDM", "SUV", "Grand Touring"];
+const CATEGORIES = ["All", "Hypercars", "Collector Icons", "Motorsport Legends", "Track Monsters", "Electric Hypercars", "Luxury SUVs", "Grand Tourers", "Limited Editions", "Convertible Icons", "JDM Legends", "Retro Classics", "Future Concepts"];
 
 /** Brand-specific accent colours — extremely subtle, monochrome-first */
 const BRAND_ACCENTS: Record<string, { glow: string; ring: string; reflection: string }> = {
@@ -40,6 +40,25 @@ const BRAND_ACCENTS: Record<string, { glow: string; ring: string; reflection: st
   Maserati:      { glow: "rgba(37,99,235,0.14)",   ring: "rgba(37,99,235,0.28)",   reflection: "rgba(147,197,253,0.10)" },
   Tesla:         { glow: "rgba(239,68,68,0.14)",   ring: "rgba(239,68,68,0.28)",   reflection: "rgba(252,165,165,0.10)" },
   Pagani:        { glow: "rgba(234,179,8,0.14)",   ring: "rgba(234,179,8,0.28)",   reflection: "rgba(253,224,71,0.10)"  },
+  Rimac:         { glow: "rgba(37,99,235,0.20)",   ring: "rgba(37,99,235,0.35)",   reflection: "rgba(96,165,250,0.15)" },
+  Lotus:         { glow: "rgba(250,204,21,0.14)",  ring: "rgba(250,204,21,0.30)",  reflection: "rgba(253,224,71,0.12)" },
+  Hennessey:     { glow: "rgba(220,38,38,0.15)",   ring: "rgba(220,38,38,0.30)",   reflection: "rgba(248,113,113,0.10)" },
+  SSC:           { glow: "rgba(147,197,253,0.14)", ring: "rgba(147,197,253,0.28)", reflection: "rgba(219,234,254,0.10)" },
+  "Gordon Murray Automotive": { glow: "rgba(156,163,175,0.15)", ring: "rgba(209,213,219,0.30)", reflection: "rgba(255,255,255,0.10)" },
+  Apollo:        { glow: "rgba(239,68,68,0.18)",   ring: "rgba(239,68,68,0.35)",   reflection: "rgba(252,165,165,0.12)" },
+  Maybach:       { glow: "rgba(212,175,55,0.16)",  ring: "rgba(212,175,55,0.32)",  reflection: "rgba(253,230,138,0.12)" },
+  Jaguar:        { glow: "rgba(22,163,74,0.14)",   ring: "rgba(22,163,74,0.28)",   reflection: "rgba(134,239,172,0.10)" },
+  "Land Rover":  { glow: "rgba(16,185,129,0.14)",  ring: "rgba(16,185,129,0.28)",  reflection: "rgba(167,243,208,0.10)" },
+  Cadillac:      { glow: "rgba(255,255,255,0.12)", ring: "rgba(255,255,255,0.25)", reflection: "rgba(255,255,255,0.10)" },
+  Infiniti:      { glow: "rgba(147,197,253,0.12)", ring: "rgba(147,197,253,0.25)", reflection: "rgba(219,234,254,0.10)" },
+  Genesis:       { glow: "rgba(209,213,219,0.14)", ring: "rgba(229,231,235,0.28)", reflection: "rgba(255,255,255,0.12)" },
+  Toyota:        { glow: "rgba(220,38,38,0.12)",   ring: "rgba(220,38,38,0.25)",   reflection: "rgba(248,113,113,0.10)" },
+  Acura:         { glow: "rgba(226,232,240,0.14)", ring: "rgba(241,245,249,0.28)", reflection: "rgba(255,255,255,0.10)" },
+  Honda:         { glow: "rgba(220,38,38,0.12)",   ring: "rgba(220,38,38,0.25)",   reflection: "rgba(248,113,113,0.10)" },
+  Mazda:         { glow: "rgba(185,28,28,0.14)",   ring: "rgba(185,28,28,0.28)",   reflection: "rgba(239,68,68,0.10)" },
+  Subaru:        { glow: "rgba(37,99,235,0.14)",   ring: "rgba(37,99,235,0.28)",   reflection: "rgba(147,197,253,0.10)" },
+  Mitsubishi:    { glow: "rgba(220,38,38,0.12)",   ring: "rgba(220,38,38,0.25)",   reflection: "rgba(248,113,113,0.10)" },
+  "Alfa Romeo":  { glow: "rgba(185,28,28,0.15)",   ring: "rgba(185,28,28,0.30)",   reflection: "rgba(239,68,68,0.12)" },
 };
 
 function getBrandAccent(name: string) {

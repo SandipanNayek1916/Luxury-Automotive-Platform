@@ -60,6 +60,15 @@ export function FleetCard({ car, index, onQuickView }: FleetCardProps) {
         </span>
       </div>
 
+      {/* Rarity Badge */}
+      {car.rarity && car.rarity !== "STANDARD" && (
+        <div className="absolute top-6 left-36 z-10 flex items-center px-4 py-2 rounded-full bg-black/80 backdrop-blur-md border border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+          <span className="text-[9px] font-black tracking-[0.2em] uppercase bg-clip-text text-transparent bg-gradient-to-r from-amber-200 to-amber-500">
+            {car.rarity}
+          </span>
+        </div>
+      )}
+
       {/* Image Section */}
       <div className="relative aspect-[16/10] overflow-hidden bg-[#F0F0F0]">
         <Image
