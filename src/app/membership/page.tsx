@@ -68,7 +68,7 @@ export default function MembershipPage() {
             </h1>
 
             <p className="text-xl text-white/60 max-w-lg leading-relaxed mb-12">
-              Beyond a rental service. An ecosystem of elite mobility, tailored for the world's most discerning enthusiasts.
+              Beyond a rental service. An ecosystem of elite mobility, tailored for the world&apos;s most discerning enthusiasts.
             </p>
 
             <div className="grid sm:grid-cols-2 gap-x-12 gap-y-10">

@@ -30,7 +30,7 @@ export function FeaturedSpotlight({ cars, loading }: FeaturedSpotlightProps) {
       const shuffled = [...cars].sort(() => Math.random() - 0.5).slice(0, 6);
       setShuffledCars(shuffled);
     }
-  }, [cars.length]); // Only reshuffle if the total car count changes
+  }, [cars]); 
 
   if (loading || !shuffledCars || shuffledCars.length === 0) {
     return (

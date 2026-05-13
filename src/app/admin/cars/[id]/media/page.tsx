@@ -164,18 +164,7 @@ export default function CarMediaPage() {
     else if (e.type === "dragleave") setDragActive(false);
   }, []);
 
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setDragActive(false);
-      const files = Array.from(e.dataTransfer.files);
-      handleFiles(files);
-    },
-    [activeType]
-  );
-
-  const handleFiles = (files: File[]) => {
+  const handleFiles = useCallback((files: File[]) => {
     const validFiles = files.filter((f) => {
       if (activeType === "video") return f.type.startsWith("video/");
       return f.type.startsWith("image/");
@@ -185,7 +174,18 @@ export default function CarMediaPage() {
       preview: URL.createObjectURL(file),
     }));
     setPreviewFiles((prev) => [...prev, ...previews]);
-  };
+  }, [activeType]);
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDragActive(false);
+      const files = Array.from(e.dataTransfer.files);
+      handleFiles(files);
+    },
+    [handleFiles]
+  );
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) handleFiles(Array.from(e.target.files));
@@ -226,7 +226,7 @@ export default function CarMediaPage() {
   // Clean up preview URLs on unmount
   useEffect(() => {
     return () => previewFiles.forEach((p) => URL.revokeObjectURL(p.preview));
-  }, []);
+  }, [previewFiles]);
 
   const activeTypeConfig = MEDIA_TYPES.find((t) => t.key === activeType)!;
 

@@ -182,11 +182,11 @@ function BrandCard({ brand, index }: { brand: Brand; index: number }) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.98 }}
         transition={{ delay: index * 0.04, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        style={{ transform: "translate3d(0,0,0)" }}
         onHoverStart={() => setHovered(true)}
         onHoverEnd={() => setHovered(false)}
         className="group relative h-[520px] rounded-[3rem] bg-gradient-to-b from-white/[0.04] to-transparent border border-white/5 overflow-hidden transition-all duration-700 hover:shadow-glow hover:border-white/20"
-        style={{
+        style={{ 
+          transform: "translate3d(0,0,0)",
           boxShadow: hovered
             ? `0 0 60px ${accent.glow}, 0 32px 64px rgba(0,0,0,0.6)`
             : "0 8px 32px rgba(0,0,0,0.4)",
@@ -201,7 +201,6 @@ function BrandCard({ brand, index }: { brand: Brand; index: number }) {
           style={{
             background: hovered ? accent.glow : "transparent",
             opacity: hovered ? 1 : 0,
-            z: 0
           }}
         />
 

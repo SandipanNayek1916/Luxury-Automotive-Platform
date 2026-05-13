@@ -147,7 +147,7 @@ export function StepPayment({ carId }: { carId: string }) {
       })
 
     return () => controller.abort()
-  }, [totalPrice, carId])
+  }, [totalPrice, carId, session, state.dates.pickup, state.dates.return, state.collectionPoint, state.returnPoint, state.selectedAddons, state.days, setPaymentIntent])
 
   if (fetchError) {
     return (

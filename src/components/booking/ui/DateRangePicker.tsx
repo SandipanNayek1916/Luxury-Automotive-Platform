@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { DateRange } from '@/types/booking'
 
 interface DateRangePickerProps {
@@ -23,8 +23,11 @@ function isSameDay(a: Date, b: Date) {
 }
 
 export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  const today = useMemo(() => {
+    const d = new Date()
+    d.setHours(0, 0, 0, 0)
+    return d
+  }, [])
 
   const [calYear, setCalYear] = useState(today.getFullYear())
   const [calMonth, setCalMonth] = useState(today.getMonth())

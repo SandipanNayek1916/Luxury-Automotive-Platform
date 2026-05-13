@@ -50,7 +50,7 @@ export function FleetBrowser({ initialBrand = "" }: FleetBrowserProps) {
     }
   });
 
-  const cars = data?.cars || [];
+  const cars = useMemo(() => data?.cars || [], [data?.cars]);
   
   // Find all featured cars for the rotating spotlight
   const spotlightCars = useMemo(() => {

@@ -9,7 +9,7 @@
     --font-inter: 'Inter', system-ui, sans-serif;
   }
   * { @apply border-border; }
-  html { scroll-behavior: smooth; }
+  html { }
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";

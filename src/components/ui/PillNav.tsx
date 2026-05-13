@@ -137,7 +137,12 @@ const PillNav = ({
       }
     }
 
-    return () => window.removeEventListener('resize', onResize);
+    return () => {
+      window.removeEventListener('resize', onResize);
+      tlRefs.current.forEach((tl) => tl?.kill());
+      activeTweenRefs.current.forEach((t) => t?.kill());
+      logoTweenRef.current?.kill();
+    };
   }, [items, ease, initialLoadAnimation]);
 
   const handleEnter = (i: number) => {

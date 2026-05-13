@@ -12,18 +12,38 @@ export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  if (status === "loading") return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
-  if (!session) { router.push("/login"); return null; }
-
   const { data: bookings } = useQuery({
     queryKey: ["bookings"],
-    queryFn: async () => { const res = await fetch("/api/bookings"); return res.json(); },
+    queryFn: async () => {
+      const res = await fetch("/api/bookings");
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json();
+    },
+    enabled: status === "authenticated",
   });
 
   const { data: favorites } = useQuery({
     queryKey: ["favorites"],
-    queryFn: async () => { const res = await fetch("/api/favorites"); return res.json(); },
+    queryFn: async () => {
+      const res = await fetch("/api/favorites");
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json();
+    },
+    enabled: status === "authenticated",
   });
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (status === "unauthenticated" || !session) {
+    router.push("/login");
+    return null;
+  }
 
   const activeBookings = bookings?.filter((b: any) => ["PENDING", "CONFIRMED", "ACTIVE"].includes(b.status)) || [];
   const totalSpent = bookings?.reduce((acc: number, b: any) => acc + (b.paymentStatus === "PAID" ? b.totalPrice : 0), 0) || 0;

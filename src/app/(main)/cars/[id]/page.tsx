@@ -299,7 +299,7 @@ export default function CarDetailPage() {
                 </button>
                 
                 <p className="text-center text-xs text-white/40 mt-4">
-                  You won't be charged until availability is confirmed.
+                  You won&apos;t be charged until availability is confirmed.
                 </p>
               </div>
             </div>

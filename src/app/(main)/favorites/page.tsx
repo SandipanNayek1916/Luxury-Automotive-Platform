@@ -13,13 +13,28 @@ export default function FavoritesPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  if (status === "loading") return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
-  if (!session) { router.push("/login"); return null; }
-
   const { data: favorites, isLoading } = useQuery({
     queryKey: ["favorites"],
-    queryFn: async () => { const res = await fetch("/api/favorites"); return res.json(); },
+    queryFn: async () => {
+      const res = await fetch("/api/favorites");
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json();
+    },
+    enabled: status === "authenticated",
   });
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (status === "unauthenticated" || !session) {
+    router.push("/login");
+    return null;
+  }
 
   return (
     <main className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8">
