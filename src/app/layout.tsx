@@ -7,6 +7,7 @@ import { Toaster } from "react-hot-toast";
 import { CinematicLoader } from "@/components/ui/CinematicLoader";
 import { GlobalAtmosphere } from "@/components/ui/GlobalAtmosphere";
 import { SmoothScroll } from "@/components/ui/SmoothScroll";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
@@ -53,6 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             }} />
           </Providers>
         </SmoothScroll>
+        <SpeedInsights />
       </body>
     </html>
   );

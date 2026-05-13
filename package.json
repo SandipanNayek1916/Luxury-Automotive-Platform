@@ -27,6 +27,7 @@
     "@stripe/stripe-js": "^3.5.0",
     "@tanstack/react-query": "^5.24.0",
     "@types/three": "^0.184.1",
+    "@vercel/speed-insights": "^2.0.0",
     "axios": "^1.6.0",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.0.0",
