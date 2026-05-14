@@ -7,7 +7,7 @@ import Image from "next/image";
 import gsap from "gsap";
 import { useCinematicBridge } from "@/lib/cinematic-bridge";
 
-const INTRO_DURATION_MS = 9500;
+const INTRO_DURATION_MS = 10500;
 const VIDEO_SRC = "/videos/aventador-svj-loading.mp4";
 
 export function CinematicLoader() {
@@ -101,7 +101,7 @@ export function CinematicLoader() {
       const speedObj = { v: 0 };
       gsap.to(speedObj, {
         v: 340,
-        duration: 9,
+        duration: 10,
         ease: "power2.inOut",
         onUpdate() {
           const valEl = document.getElementById("loader-speed-value");
@@ -115,8 +115,8 @@ export function CinematicLoader() {
         }
       });
 
-      gsap.to(brandingRef.current, { y: -15, duration: 10, ease: "none", force3D: true });
-      gsap.to([gradientOverlayRef.current, vignetteRef.current], { opacity: 0, duration: 3, delay: 7, ease: "power2.inOut" });
+      gsap.to(brandingRef.current, { y: -15, duration: 11, ease: "none", force3D: true });
+      gsap.to([gradientOverlayRef.current, vignetteRef.current], { opacity: 0, duration: 3, delay: 8, ease: "power2.inOut" });
     });
 
     timerRef.current = setTimeout(dismiss, INTRO_DURATION_MS);
