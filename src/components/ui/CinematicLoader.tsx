@@ -83,8 +83,14 @@ export function CinematicLoader() {
         tl.to(video, { opacity: 0.85, scale: 1, duration: 1.2, ease: "power2.out" });
       }
 
-      tl.to(brandingRef.current, { opacity: 1, y: 0, duration: 1.2, ease: "power3.out" }, "-=0.6");
-      tl.to(metricsRef.current, { opacity: 1, duration: 0.6 }, "-=0.6")
+      gsap.set(brandingRef.current, { opacity: 1, y: 0 });
+
+      tl.fromTo(".loader-subtitle", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" }, "-=0.6")
+        .fromTo(".loader-title-word", { y: 40, opacity: 0, scale: 0.95 }, { y: 0, opacity: 1, scale: 1, duration: 1, stagger: 0.15, ease: "back.out(1.2)" }, "-=0.6")
+        .fromTo(".loader-line", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power3.inOut" }, "-=0.4")
+        .fromTo(".loader-status", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, "-=0.6")
+        .fromTo(".loader-bar", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power3.out" }, "-=0.4")
+        .to(metricsRef.current, { opacity: 1, duration: 0.6 }, "-=0.4")
         .fromTo(".loader-metric-item", 
           { opacity: 0, x: -10, z: 0 }, 
           { opacity: 1, x: 0, z: 0, duration: 0.4, stagger: 0.08, ease: "power2.out", force3D: true }, 
@@ -147,16 +153,24 @@ export function CinematicLoader() {
 
           <div className="absolute inset-0 pointer-events-none opacity-20" style={{ backgroundImage: "linear-gradient(to right,rgba(0,0,0,0.04) 1px,transparent 1px),linear-gradient(to bottom,rgba(0,0,0,0.04) 1px,transparent 1px)", backgroundSize: "64px 64px", maskImage: "radial-gradient(circle at center, black 20%, transparent 80%)" }} />
 
-          <div ref={brandingRef} className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-6" style={{ opacity: 0, transform: "translateY(20px)" }}>
-            <p className="text-black/60 tracking-[0.5em] text-[10px] font-semibold uppercase mb-5">PREMIUM MOBILITY EXPERIENCE</p>
-            <h1 className="text-4xl sm:text-6xl font-extralight tracking-tight text-[#0A0A0A] mb-5 uppercase leading-none">DRIVE BEYOND <span className="font-semibold">ORDINARY</span></h1>
-            <div className="flex items-center gap-4 mb-10">
-              <div className="w-10 h-px bg-black/15" />
-              <p className="text-black/40 tracking-[0.2em] text-[10px] font-medium uppercase">Loading elite automotive collection</p>
-              <div className="w-10 h-px bg-black/15" />
+          <div ref={brandingRef} className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-6">
+            <div className="overflow-hidden mb-5">
+              <p className="loader-subtitle text-black/60 tracking-[0.5em] text-[10px] font-semibold uppercase">PREMIUM MOBILITY EXPERIENCE</p>
             </div>
-            <div className="w-48 h-px bg-black/10 relative overflow-hidden rounded-full">
-              <motion.div className="absolute inset-y-0 left-0 bg-black/70 rounded-full" initial={{ width: "0%" }} animate={{ width: "100%" }} transition={{ duration: INTRO_DURATION_MS / 1000, ease: "easeInOut" }} />
+            <h1 className="text-4xl sm:text-6xl font-extralight tracking-tight text-[#0A0A0A] mb-5 uppercase leading-none flex gap-3 sm:gap-4">
+              <div className="overflow-hidden"><span className="loader-title-word block">DRIVE</span></div>
+              <div className="overflow-hidden"><span className="loader-title-word block">BEYOND</span></div>
+              <div className="overflow-hidden"><span className="loader-title-word block font-semibold">ORDINARY</span></div>
+            </h1>
+            <div className="flex items-center gap-4 mb-10">
+              <div className="loader-line w-10 h-px bg-black/15 origin-left" />
+              <div className="overflow-hidden">
+                <p className="loader-status text-black/40 tracking-[0.2em] text-[10px] font-medium uppercase">Loading elite automotive collection</p>
+              </div>
+              <div className="loader-line w-10 h-px bg-black/15 origin-right" />
+            </div>
+            <div className="loader-bar w-48 h-px bg-black/10 relative overflow-hidden rounded-full origin-center">
+              <motion.div className="absolute inset-y-0 left-0 bg-black/70 rounded-full" initial={{ width: "0%" }} animate={{ width: "100%" }} transition={{ duration: INTRO_DURATION_MS / 1000, ease: "easeInOut", delay: 1 }} />
             </div>
           </div>
 
