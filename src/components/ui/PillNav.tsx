@@ -137,11 +137,15 @@ const PillNav = ({
       }
     }
 
+    const tls = tlRefs.current;
+    const activeTweens = activeTweenRefs.current;
+    const logoTween = logoTweenRef;
+
     return () => {
       window.removeEventListener('resize', onResize);
-      tlRefs.current.forEach((tl) => tl?.kill());
-      activeTweenRefs.current.forEach((t) => t?.kill());
-      logoTweenRef.current?.kill();
+      tls.forEach((tl) => tl?.kill());
+      activeTweens.forEach((t) => t?.kill());
+      logoTween.current?.kill();
     };
   }, [items, ease, initialLoadAnimation]);
 

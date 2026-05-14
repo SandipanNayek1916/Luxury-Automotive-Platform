@@ -39,7 +39,7 @@ function TactileCard({ f, i, isInView }: any) {
       <div 
         className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
         style={{
-          background: `radial-gradient(400px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(0,0,0,0.025), transparent 60%)`
+          background: `radial-gradient(400px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(255,255,255,0.06), transparent 60%)`
         }}
       />
       

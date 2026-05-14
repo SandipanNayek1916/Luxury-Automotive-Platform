@@ -8,9 +8,9 @@ export function FooterSection() {
   const [email, setEmail] = useState("");
 
   return (
-    <section className="relative px-6 lg:px-12 pb-12">
+    <section className="relative px-6 lg:px-12 pb-12 bg-background">
       <div className="max-w-[1500px] mx-auto">
-        <div className="relative overflow-hidden rounded-[3.5rem] lg:rounded-[5rem] bg-foreground text-white shadow-elevated">
+        <div className="relative overflow-hidden rounded-[3.5rem] lg:rounded-[5rem] bg-[#0A0A0A] text-white shadow-elevated border border-white/5">
           {/* Cinematic Background */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <svg className="absolute inset-0 w-full h-full opacity-[0.05]" viewBox="0 0 800 400" preserveAspectRatio="none">
@@ -34,7 +34,7 @@ export function FooterSection() {
               Drive with <br />Unique <span className="text-white/20">Today.</span>
             </h2>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-              <Link href="/cars" className="group relative bg-white text-foreground px-12 py-6 rounded-full text-[15px] font-black transition-all hover:scale-[1.05] active:scale-95 shadow-elevated">
+              <Link href="/cars" className="group relative bg-white text-black px-12 py-6 rounded-full text-[15px] font-black transition-all hover:scale-[1.05] active:scale-95 shadow-elevated">
                 Browse Collection
               </Link>
               <Link href="/register" className="px-12 py-6 rounded-full text-[15px] font-black text-white border border-white/20 hover:bg-white/5 transition-all">
@@ -48,9 +48,9 @@ export function FooterSection() {
           <div className="flex flex-col gap-6">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-foreground flex items-center justify-center">
-                <span className="text-white font-bold text-xs">U</span>
+                <span className="text-background font-bold text-xs">U</span>
               </div>
-              <span className="font-bold text-xl tracking-tighter">Unique</span>
+              <span className="font-bold text-xl tracking-tighter text-foreground">Unique</span>
             </div>
             <p className="text-muted text-sm max-w-[240px] leading-relaxed font-medium">
               Redefining automotive luxury and elite mobility for the most discerning global clients.
@@ -85,10 +85,10 @@ export function FooterSection() {
                   value={email} 
                   onChange={(e) => setEmail(e.target.value)} 
                   placeholder="Your e-mail" 
-                  className="w-full bg-foreground/[0.02] rounded-2xl px-6 py-4 text-sm font-medium placeholder:text-muted/40 border border-transparent focus:bg-white focus:border-border transition-all outline-none" 
+                  className="w-full bg-foreground/[0.02] rounded-2xl px-6 py-4 text-sm font-medium placeholder:text-muted/40 border border-border/10 text-foreground focus:bg-foreground/[0.05] focus:border-border/30 transition-all outline-none" 
                 />
               </div>
-              <button className="w-12 h-12 rounded-2xl bg-foreground text-white flex items-center justify-center hover:scale-[1.05] active:scale-95 transition-all shadow-soft">
+              <button className="w-12 h-12 rounded-2xl bg-foreground text-background flex items-center justify-center hover:scale-[1.05] active:scale-95 transition-all shadow-soft">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7"/></svg>
               </button>
             </div>

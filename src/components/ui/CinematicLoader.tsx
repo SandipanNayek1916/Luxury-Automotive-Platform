@@ -10,11 +10,10 @@ const INTRO_DURATION_MS = 10000;
 const VIDEO_SRC = "/videos/aventador-svj-loading.mp4";
 
 export function CinematicLoader() {
-  const [isVisible, setIsVisible] = useState(true);
-  const [isExiting, setIsExiting] = useState(false);
+  const [localIsExiting, setLocalIsExiting] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
 
-  const { signalLoaderExiting } = useCinematicBridge();
+  const { isVisible, setIsVisible, signalLoaderExiting } = useCinematicBridge();
 
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -47,10 +46,12 @@ export function CinematicLoader() {
     document.body.style.overflow = "";
     document.body.style.height = "";
 
-    setTimeout(() => setIsExiting(true), 400);
+    setTimeout(() => setLocalIsExiting(true), 400);
   }, [signalLoaderExiting]);
 
   useEffect(() => {
+    if (!isVisible) return;
+
     document.body.style.overflow = "hidden";
     document.body.style.height = "100vh";
 
@@ -69,7 +70,6 @@ export function CinematicLoader() {
     gsapCtx.current = gsap.context(() => {
       const tl = gsap.timeline();
 
-      // Use translate3d for all initial sets to promote to GPU layers
       gsap.set([brandingRef.current, metricsRef.current, gaugeRef.current], { 
         opacity: 0, 
         z: 0,
@@ -108,7 +108,6 @@ export function CinematicLoader() {
         }
       });
 
-      // Subtle parallax, reduced distance for "quiet luxury"
       gsap.to(brandingRef.current, { y: -15, duration: 10, ease: "none", force3D: true });
       gsap.to([gradientOverlayRef.current, vignetteRef.current], { opacity: 0, duration: 3, delay: 7, ease: "power2.inOut" });
     });
@@ -118,18 +117,18 @@ export function CinematicLoader() {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
       if (gsapCtx.current) {
-        gsapCtx.current.revert(); // Proper GSAP cleanup
+        gsapCtx.current.revert();
       }
       document.body.style.overflow = "";
       document.body.style.height = "";
     };
-  }, [dismiss]);
+  }, [dismiss, isVisible]);
 
   if (!isVisible) return null;
 
   return (
     <AnimatePresence mode="wait" onExitComplete={() => setIsVisible(false)}>
-      {!isExiting && (
+      {!localIsExiting && (
         <motion.div
           key="cinematic-intro"
           ref={containerRef}

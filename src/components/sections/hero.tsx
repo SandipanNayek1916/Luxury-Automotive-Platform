@@ -14,7 +14,7 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 
 // ─── Reveal variants ──────────────────────────────────────────────────────────
 const fadeUp = {
-  hidden:  { opacity: 0, y: 20 }, // Removed blur, reduced distance
+  hidden:  { opacity: 0, y: 20 },
   visible: (d = 0) => ({ 
     opacity: 1, 
     y: 0, 
@@ -23,7 +23,7 @@ const fadeUp = {
 };
 
 const fadeIn = {
-  hidden:  { opacity: 0 }, // Removed blur
+  hidden:  { opacity: 0 },
   visible: (d = 0) => ({ 
     opacity: 1, 
     transition: { duration: 1, ease: EASE, delay: d } 
@@ -31,7 +31,7 @@ const fadeIn = {
 };
 
 const slideRight = {
-  hidden:  { opacity: 0, x: 20 }, // Removed blur, reduced distance
+  hidden:  { opacity: 0, x: 20 },
   visible: (d = 0) => ({ 
     opacity: 1, 
     x: 0, 
@@ -82,16 +82,19 @@ export function HeroSection() {
     return () => clearTimeout(t);
   }, [revealed]);
 
-  // ── Mouse parallax tilt (Optimized to reduce re-renders) ───────────────────
+  // ── Mouse parallax tilt (Optimized with requestAnimationFrame) ───────────────
   useEffect(() => {
-    if (isMobile) return; // Disable tilt on mobile
+    if (isMobile) return;
     const handleMouse = (e: MouseEvent) => {
       if (!tiltRef.current) return;
       const rect = tiltRef.current.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width - 0.5;
       const y = (e.clientY - rect.top)  / rect.height - 0.5;
-      // Using translate3d for GPU acceleration
-      tiltRef.current.style.transform = `perspective(1200px) rotateY(${x * 6}deg) rotateX(${-y * 4}deg) translate3d(0,0,0)`;
+      
+      requestAnimationFrame(() => {
+        if (!tiltRef.current) return;
+        tiltRef.current.style.transform = `perspective(1200px) rotateY(${x * 6}deg) rotateX(${-y * 4}deg) translate3d(0,0,0)`;
+      });
     };
     const el = tiltRef.current;
     el?.addEventListener("mousemove", handleMouse);
@@ -125,7 +128,7 @@ export function HeroSection() {
         />
       )}
 
-      {/* ── Environmental Particles (Dust Motes - Disabled on Mobile) ───────────── */}
+      {/* ── Environmental Particles ────────────────────────────────────────── */}
       {!isMobile && (
         <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
           {[...Array(6)].map((_, i) => (
@@ -177,26 +180,10 @@ export function HeroSection() {
         }}
         className="relative z-10 w-full max-w-[1500px] bg-card/60 backdrop-blur-sm rounded-[3rem] lg:rounded-[4.5rem] shadow-2xl overflow-visible border border-border/40"
       >
-        {/* Ambient Haze overlay in card */}
         <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent rounded-[3rem] lg:rounded-[4.5rem] pointer-events-none" />
 
-        {/* Grid texture */}
-        <div className="absolute inset-0 opacity-[0.015] pointer-events-none rounded-[3rem] lg:rounded-[4.5rem] overflow-hidden">
-          <svg width="100%" height="100%">
-            <defs>
-              <pattern id="hero-grid" width="100" height="100" patternUnits="userSpaceOnUse">
-                <path d="M 100 0 L 0 0 0 100" fill="none" stroke="currentColor" strokeWidth="0.5"/>
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#hero-grid)"/>
-          </svg>
-        </div>
-
         <div className="relative z-20 grid lg:grid-cols-2 gap-12 min-h-[750px]">
-          
-          {/* ── Left: Typography ────────────────────────────────────────────── */}
           <div className="flex flex-col justify-center px-10 sm:px-16 lg:pl-24 py-20 lg:py-32">
-            
             <motion.div variants={fadeIn} custom={0.2} className="flex items-center gap-4 mb-10">
               <div className="w-12 h-[1px] bg-foreground/30" />
               <span className="text-[10px] font-bold tracking-[0.5em] uppercase text-muted">
@@ -222,20 +209,19 @@ export function HeroSection() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="group relative overflow-hidden inline-flex items-center gap-4 bg-foreground text-white px-10 py-5 rounded-full text-[14px] font-bold tracking-wide shadow-2xl transition-shadow hover:shadow-foreground/20"
+                  className="group relative overflow-hidden inline-flex items-center gap-4 bg-foreground text-background px-10 py-5 rounded-full text-[14px] font-bold tracking-wide shadow-2xl transition-shadow hover:shadow-foreground/20"
                 >
                   <span className="relative z-10">Explore Fleet</span>
                   <svg className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7"/>
                   </svg>
-                  {/* Subtle hover sweep */}
                   <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
                 </motion.button>
               </Link>
               
               <Link href="/services" passHref>
                 <motion.button
-                  whileHover={{ scale: 1.05, backgroundColor: "rgba(0,0,0,0.03)" }}
+                  whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.03)" }}
                   whileTap={{ scale: 0.95 }}
                   className="inline-flex items-center gap-2 bg-transparent text-foreground px-10 py-5 rounded-full text-[14px] font-bold tracking-wide border border-border/80 transition-colors"
                 >
@@ -245,7 +231,6 @@ export function HeroSection() {
             </motion.div>
           </div>
 
-          {/* ── Right: McLaren P1 3D Model ──────────────────────────────────── */}
           <div className="relative flex items-center justify-center lg:justify-end lg:pr-10">
             <motion.div 
               variants={slideRight} 
@@ -255,16 +240,6 @@ export function HeroSection() {
               <div className="w-[120%] h-full">
                 <CarModel />
               </div>
-
-              {/* Decorative HUD Element */}
-              <motion.div 
-                animate={{ rotate: 360 }}
-                transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-                className="absolute top-10 right-10 w-48 h-48 border border-foreground/[0.04] rounded-full flex items-center justify-center pointer-events-none hidden md:flex"
-              >
-                <div className="w-36 h-36 border border-foreground/[0.06] rounded-full border-dashed" />
-                <span className="absolute text-[8px] font-black tracking-[0.5em] text-foreground/30 uppercase">Aero Active</span>
-              </motion.div>
             </motion.div>
           </div>
         </div>
@@ -289,7 +264,6 @@ export function HeroSection() {
         </motion.div>
       </motion.div>
       
-      {/* Scroll Indicator */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -302,7 +276,6 @@ export function HeroSection() {
     </section>
   );
 }
-/* ── Sub-components ──────────────────────────────────────────────────────── */
 
 function HeroBrandLogo({ brand }: { brand: string }) {
   const router = useRouter();
