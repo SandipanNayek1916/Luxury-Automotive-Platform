@@ -7,6 +7,7 @@ import { Car } from "@/types";
 import { useState, useRef } from "react";
 import { clsx } from "clsx";
 import { formatPrice } from "@/lib/utils";
+import { getLogoPath } from "@/lib/brand-utils";
 
 interface FleetCardProps {
   car: Car;
@@ -97,10 +98,13 @@ export function FleetCard({ car, index, onQuickView }: FleetCardProps) {
           <div className="flex items-center gap-2.5 mb-4">
             <div className="w-5 h-5 relative opacity-30 group-hover:opacity-100 transition-all duration-700">
               <Image 
-                src={`/images/logos/${car.brand.toLowerCase().replace(/\s+/g, '-')}.svg`}
+                src={getLogoPath(car.brand)}
                 alt={`${car.brand} logo`}
                 fill
                 className="object-contain"
+                style={{
+                  filter: "invert(1) hue-rotate(180deg) brightness(1.2)",
+                }}
                 onError={(e) => {
                   (e.target as HTMLElement).style.display = 'none';
                 }}

@@ -5,9 +5,10 @@ import { motion, useAnimation, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCinematicBridge } from "@/lib/cinematic-bridge";
+import { getLogoPath } from "@/lib/brand-utils";
 import { CarModel } from "@/components/ui/CarModel";
 
-const HERO_BRANDS = ["Lamborghini", "BMW", "Tesla", "Cadillac", "Porsche", "Mercedes", "Lexus", "Ferrari"];
+const HERO_BRANDS = ["Lamborghini", "BMW", "Tesla", "Cadillac", "Porsche", "Mercedes-Benz", "Lexus", "Ferrari"];
 const EASE = [0.16, 1, 0.3, 1] as const;
 
 // ─── Reveal variants ──────────────────────────────────────────────────────────
@@ -278,18 +279,9 @@ export function HeroSection() {
             <span className="text-[10px] font-black tracking-[0.6em] text-foreground/30 uppercase whitespace-nowrap">
               Global Partnerships
             </span>
-            <div className="flex items-center gap-10 lg:gap-16">
+            <div className="flex items-center gap-12 lg:gap-20">
               {HERO_BRANDS.map((brand) => (
-                <button
-                  key={brand}
-                  onClick={() => router.push(`/cars?brand=${encodeURIComponent(brand)}`)}
-                  className="group relative flex items-center justify-center transition-all cursor-pointer py-2"
-                >
-                  <span className="text-[11px] font-bold tracking-widest uppercase text-muted/40 group-hover:text-foreground transition-colors duration-500">
-                    {brand}
-                  </span>
-                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[1px] bg-foreground group-hover:w-full transition-all duration-500 ease-out" />
-                </button>
+                <HeroBrandLogo key={brand} brand={brand} />
               ))}
             </div>
           </div>
@@ -309,4 +301,40 @@ export function HeroSection() {
     </section>
   );
 }
+/* ── Sub-components ──────────────────────────────────────────────────────── */
 
+function HeroBrandLogo({ brand }: { brand: string }) {
+  const router = useRouter();
+  const [error, setError] = useState(false);
+  const logoSrc = getLogoPath(brand);
+
+  return (
+    <button
+      onClick={() => router.push(`/cars?brand=${encodeURIComponent(brand)}`)}
+      className="group relative flex items-center gap-3 transition-all cursor-pointer py-2"
+    >
+      <div className="relative w-8 h-8 opacity-40 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500">
+        {!error ? (
+          <Image
+            src={logoSrc}
+            alt={brand}
+            fill
+            className="object-contain"
+            style={{
+              filter: "invert(1) hue-rotate(180deg) brightness(1.2)",
+            }}
+            onError={() => setError(true)}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center border border-foreground/10 rounded-full text-[10px] font-bold">
+            {brand.charAt(0)}
+          </div>
+        )}
+      </div>
+      <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted/40 group-hover:text-foreground transition-colors duration-500">
+        {brand}
+      </span>
+      <div className="absolute -bottom-1 left-0 w-0 h-[1px] bg-foreground/20 group-hover:w-full transition-all duration-500 ease-out" />
+    </button>
+  );
+}

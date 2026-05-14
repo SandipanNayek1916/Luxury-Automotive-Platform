@@ -8,9 +8,9 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#F8F8F8", // Slightly warmer/softer background
-        card: "#FFFFFF",
-        foreground: "#050505", // Deeper black for high contrast
+        background: "#050505", // Deep cinematic black
+        card: "#0A0A0A",
+        foreground: "#F8F8F8", // Soft off-white for text
         muted: "#86868B", // Apple-style muted grey
         border: "rgba(0,0,0,0.04)",
         accent: "#000000",

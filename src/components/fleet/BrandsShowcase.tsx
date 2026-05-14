@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { Globe, Flag, TrendingUp, CarFront } from "lucide-react";
+import { getLogoPath } from "@/lib/brand-utils";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { FreeMode, Mousewheel } from "swiper/modules";
 import "swiper/css";
@@ -72,11 +73,6 @@ function getBrandAccent(name: string) {
   );
 }
 
-/** Derive the local SVG path from the brand name (mirrors seed_brands.ts logic) */
-function getLogoPath(name: string): string {
-  const slug = name.toLowerCase().replace(/\s+/g, "-");
-  return `/images/logos/${slug}.svg`;
-}
 
 export function BrandsShowcase() {
   const [activeCategory, setActiveCategory] = useState("All");
@@ -193,7 +189,7 @@ function BrandCard({ brand, index }: { brand: Brand; index: number }) {
   const [logoError, setLogoError] = useState(false);
   const [hovered, setHovered] = useState(false);
   const accent = getBrandAccent(brand.name);
-  const logoSrc = getLogoPath(brand.name);
+  const logoSrc = brand.logo || getLogoPath(brand.name);
 
   return (
     <Link href={`/cars?brand=${encodeURIComponent(brand.name)}`} className="block w-full h-full">
@@ -338,15 +334,15 @@ function LuxuryEmblem({ brand, logoSrc, logoError, setLogoError, hovered, accent
         className="relative w-[84px] h-[84px] rounded-full flex items-center justify-center overflow-hidden"
         style={{
           background: hovered
-            ? "linear-gradient(135deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.02) 100%)"
-            : "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 50%, rgba(0,0,0,0.1) 100%)",
-          border: hovered
-            ? `1px solid rgba(255,255,255,0.25)`
-            : `1px solid rgba(255,255,255,0.10)`,
+            ? "linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 50%, transparent 100%)"
+            : "linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 50%, transparent 100%)",
+          backdropFilter: "blur(12px)",
+          border: hovered 
+            ? `1px solid ${accent.ring}` 
+            : "1px solid rgba(255,255,255,0.08)",
           boxShadow: hovered
-            ? `inset 0 1px 2px rgba(255,255,255,0.3), inset 0 -1px 4px rgba(0,0,0,0.5), 0 0 20px ${accent.glow}, 0 6px 24px rgba(0,0,0,0.4)`
+            ? `inset 0 1px 2px rgba(255,255,255,0.3), inset 0 -1px 4px rgba(0,0,0,0.5), 0 0 30px ${accent.glow}, 0 6px 24px rgba(0,0,0,0.4)`
             : `inset 0 1px 1px rgba(255,255,255,0.12), inset 0 -1px 2px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.4)`,
-          backdropFilter: "blur(8px)",
           transition: "all 0.6s cubic-bezier(0.16,1,0.3,1)",
         }}
       >
@@ -389,7 +385,9 @@ function LuxuryEmblem({ brand, logoSrc, logoError, setLogoError, hovered, accent
               sizes="54px"
               className="object-contain"
               style={{
-                filter: "invert(1) brightness(2)",
+                filter: hovered 
+                  ? "invert(1) hue-rotate(180deg) brightness(1.2) contrast(1.1)" 
+                  : "invert(1) hue-rotate(180deg) brightness(0.9)",
               }}
               onError={() => setLogoError(true)}
             />
