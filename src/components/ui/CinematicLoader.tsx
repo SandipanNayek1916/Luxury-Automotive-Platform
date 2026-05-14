@@ -3,10 +3,11 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Volume2, VolumeX } from "lucide-react";
+import Image from "next/image";
 import gsap from "gsap";
 import { useCinematicBridge } from "@/lib/cinematic-bridge";
 
-const INTRO_DURATION_MS = 10000;
+const INTRO_DURATION_MS = 5000;
 const VIDEO_SRC = "/videos/aventador-svj-loading.mp4";
 
 export function CinematicLoader() {

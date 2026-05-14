@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { Heart, Fuel, Gauge, Zap } from "lucide-react";
 import { Car } from "@/types";
-import { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, memo } from "react";
 import { clsx } from "clsx";
 import { formatPrice } from "@/lib/utils";
 import { getLogoPath } from "@/lib/brand-utils";
@@ -15,17 +15,28 @@ interface FleetCardProps {
   onQuickView: (car: Car) => void;
 }
 
-export function FleetCard({ car, index, onQuickView }: FleetCardProps) {
-  const [isHovered, setIsHovered] = useState(false);
+export const FleetCard = memo(({ car, index, onQuickView }: FleetCardProps) => {
   const cardRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
+    if (!cardRef.current || isMobile) return;
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    cardRef.current.style.setProperty("--mouse-x", `${x}px`);
-    cardRef.current.style.setProperty("--mouse-y", `${y}px`);
+    
+    requestAnimationFrame(() => {
+      if (!cardRef.current) return;
+      cardRef.current.style.setProperty("--mouse-x", `${x}px`);
+      cardRef.current.style.setProperty("--mouse-y", `${y}px`);
+    });
   };
 
   return (
@@ -40,10 +51,8 @@ export function FleetCard({ car, index, onQuickView }: FleetCardProps) {
         delay: index * 0.02,
         ease: [0.16, 1, 0.3, 1]
       }}
-      style={{ transform: "translate3d(0,0,0)" }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className="group relative bg-white rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden border border-border/50 shadow-soft transition-all duration-500 hover:shadow-elevated hover:-translate-y-1"
+      style={{ transform: "translate3d(0,0,0)", willChange: "transform, opacity" }}
+      className="group relative bg-card rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden border border-border/50 shadow-soft transition-all duration-500 hover:shadow-elevated hover:-translate-y-1"
     >
       {/* Favorite Button */}
       <button className="absolute top-6 right-6 z-10 w-11 h-11 rounded-full bg-white/70 backdrop-blur-sm border border-white/20 flex items-center justify-center text-foreground/40 hover:text-red-500 hover:bg-white transition-all duration-500 shadow-soft">
@@ -71,21 +80,22 @@ export function FleetCard({ car, index, onQuickView }: FleetCardProps) {
       )}
 
       {/* Image Section */}
-      <div className="relative aspect-[16/10] overflow-hidden bg-[#F0F0F0]">
+      <div className="relative aspect-[16/10] overflow-hidden bg-muted/5">
         <Image
           src={car.showcaseImage || car.heroImage || car.mainImage}
           alt={car.name}
           fill
-          className="object-cover transition-all duration-[1.5s] ease-[0.16,1,0.3,1] scale-[1.01] group-hover:scale-110"
+          className="object-cover transition-all duration-[1.5s] luxury-ease scale-[1.01] group-hover:scale-110"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent opacity-40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent opacity-40" />
         
-        {/* Quick View Button (Visible on Hover) */}
+        {/* Quick View Button */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-700">
           <button 
             onClick={() => onQuickView(car)}
-            className="px-10 py-4 bg-foreground text-white rounded-full font-bold text-[13px] tracking-tight transform translate-y-6 group-hover:translate-y-0 transition-all duration-700 hover:scale-[1.05] active:scale-95 shadow-elevated"
+            className="px-10 py-4 bg-foreground text-background rounded-full font-bold text-[13px] tracking-tight transform translate-y-6 group-hover:translate-y-0 transition-all duration-700 hover:scale-[1.05] active:scale-95 shadow-elevated"
           >
             Quick View
           </button>
@@ -101,13 +111,11 @@ export function FleetCard({ car, index, onQuickView }: FleetCardProps) {
                 src={getLogoPath(car.brand)}
                 alt={`${car.brand} logo`}
                 fill
-                className="object-contain"
-                style={{
-                  filter: "invert(1) hue-rotate(180deg) brightness(1.2)",
-                }}
+                className="object-contain transition-all duration-800 luxury-ease dark:invert dark:hue-rotate-180 dark:brightness-125"
                 onError={(e) => {
                   (e.target as HTMLElement).style.display = 'none';
                 }}
+                loading="lazy"
               />
             </div>
             <span className="text-[10px] font-black tracking-[0.3em] uppercase text-muted/60 group-hover:text-muted transition-colors duration-700">
@@ -158,12 +166,16 @@ export function FleetCard({ car, index, onQuickView }: FleetCardProps) {
       </div>
 
       {/* Spotlight Effect (Cursor Follow) */}
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-1000"
-        style={{
-          background: `radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(0,0,0,0.03), transparent 60%)`
-        }}
-      />
+      {!isMobile && (
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-1000"
+          style={{
+            background: `radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), var(--spotlight), transparent 60%)`
+          }}
+        />
+      )}
     </motion.div>
   );
-}
+});
+
+FleetCard.displayName = "FleetCard";

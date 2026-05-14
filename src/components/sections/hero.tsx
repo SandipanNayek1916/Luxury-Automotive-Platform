@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, memo } from "react";
 import { motion, useAnimation, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -128,35 +128,6 @@ export function HeroSection() {
         />
       )}
 
-      {/* ── Environmental Particles ────────────────────────────────────────── */}
-      {!isMobile && (
-        <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-          {[...Array(6)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute rounded-full bg-foreground"
-              style={{
-                width: Math.random() * 2 + 1 + 'px',
-                height: Math.random() * 2 + 1 + 'px',
-                top: Math.random() * 100 + '%',
-                left: Math.random() * 100 + '%',
-                opacity: Math.random() * 0.08 + 0.02,
-                willChange: "transform, opacity"
-              }}
-              animate={{
-                y: [0, -60],
-                opacity: [0, 0.08, 0],
-              }}
-              transition={{
-                duration: 15 + i * 2,
-                repeat: Infinity,
-                ease: "linear",
-              }}
-            />
-          ))}
-        </div>
-      )}
-
       {/* ── Background Glows & Atmospheric Haze ───────────────────────────────── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         <motion.div 
@@ -221,9 +192,9 @@ export function HeroSection() {
               
               <Link href="/services" passHref>
                 <motion.button
-                  whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.03)" }}
+                  whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="inline-flex items-center gap-2 bg-transparent text-foreground px-10 py-5 rounded-full text-[14px] font-bold tracking-wide border border-border/80 transition-colors"
+                  className="inline-flex items-center gap-2 bg-transparent text-foreground px-10 py-5 rounded-full text-[14px] font-bold tracking-wide border border-border/80 transition-colors hover:bg-foreground/5"
                 >
                   Our Services
                 </motion.button>
@@ -277,7 +248,7 @@ export function HeroSection() {
   );
 }
 
-function HeroBrandLogo({ brand }: { brand: string }) {
+const HeroBrandLogo = React.memo(({ brand }: { brand: string }) => {
   const router = useRouter();
   const [error, setError] = useState(false);
   const logoSrc = getLogoPath(brand);
@@ -293,11 +264,9 @@ function HeroBrandLogo({ brand }: { brand: string }) {
             src={logoSrc}
             alt={brand}
             fill
-            className="object-contain"
-            style={{
-              filter: "invert(1) hue-rotate(180deg) brightness(1.2)",
-            }}
+            className="object-contain transition-all duration-800 luxury-ease dark:invert dark:hue-rotate-180 dark:brightness-125"
             onError={() => setError(true)}
+            loading="lazy"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center border border-foreground/10 rounded-full text-[10px] font-bold">
@@ -311,4 +280,6 @@ function HeroBrandLogo({ brand }: { brand: string }) {
       <div className="absolute -bottom-1 left-0 w-0 h-[1px] bg-foreground/20 group-hover:w-full transition-all duration-500 ease-out" />
     </button>
   );
-}
+});
+
+HeroBrandLogo.displayName = "HeroBrandLogo";

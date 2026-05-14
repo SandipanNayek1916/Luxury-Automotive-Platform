@@ -8,6 +8,8 @@ import { CinematicLoader } from "@/components/ui/CinematicLoader";
 import { GlobalAtmosphere } from "@/components/ui/GlobalAtmosphere";
 import { SmoothScroll } from "@/components/ui/SmoothScroll";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
@@ -41,20 +43,23 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
       <body className="font-sans">
-        <SmoothScroll>
-          <Providers>
-            <GlobalAtmosphere />
-            <CinematicLoader />
-            <Navbar />
-            {children}
-            <Toaster position="top-center" toastOptions={{
-              style: { borderRadius: "16px", fontSize: "14px" },
-            }} />
-          </Providers>
-        </SmoothScroll>
-        <SpeedInsights />
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+          <SmoothScroll>
+            <Providers>
+              <GlobalAtmosphere />
+              <CinematicLoader />
+              <ThemeToggle />
+              <Navbar />
+              {children}
+              <Toaster position="top-center" toastOptions={{
+                style: { borderRadius: "16px", fontSize: "14px" },
+              }} />
+            </Providers>
+          </SmoothScroll>
+          <SpeedInsights />
+        </ThemeProvider>
       </body>
     </html>
   );

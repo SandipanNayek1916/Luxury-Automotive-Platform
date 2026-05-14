@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, memo } from "react";
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { Clock, Headphones, Zap, Shield } from "lucide-react";
 
@@ -11,17 +11,21 @@ const features = [
   { icon: Shield, title: "Absolute confidentiality", desc: "Your privacy and data security is our top priority", color: "bg-rose-50", iconColor: "text-rose-600" },
 ];
 
-function TactileCard({ f, i, isInView }: any) {
+const TactileCard = memo(({ f, i, isInView }: any) => {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    cardRef.current.style.setProperty("--mouse-x", `${x}px`);
-    cardRef.current.style.setProperty("--mouse-y", `${y}px`);
+    
+    // Use requestAnimationFrame for smoother cursor tracking
+    requestAnimationFrame(() => {
+      if (!cardRef.current) return;
+      cardRef.current.style.setProperty("--mouse-x", `${x}px`);
+      cardRef.current.style.setProperty("--mouse-y", `${y}px`);
+    });
   };
 
   return (
@@ -29,32 +33,42 @@ function TactileCard({ f, i, isInView }: any) {
       ref={cardRef}
       initial={{ opacity: 0, y: 20 }} 
       animate={isInView ? { opacity: 1, y: 0 } : {}} 
-      transition={{ delay: 0.2 + i * 0.1, duration: 1, ease: [0.16, 1, 0.3, 1] }} 
+      transition={{ delay: 0.1 + i * 0.05, duration: 0.8, ease: [0.16, 1, 0.3, 1] }} 
       whileHover={{ y: -5, scale: 1.01 }} 
       onMouseMove={handleMouseMove}
       style={{ willChange: "transform, opacity", transform: "translate3d(0,0,0)" }}
-      className="group relative bg-card/60 backdrop-blur-sm rounded-[2.5rem] p-10 border border-border/40 shadow-soft hover:shadow-2xl transition-all duration-500 overflow-hidden"
+      className="group relative bg-card/60 backdrop-blur-[4px] rounded-[2.5rem] p-10 border border-border/40 shadow-soft transition-all duration-500 overflow-hidden"
     >
-      {/* Spotlight Effect (Optimized with CSS Variables) */}
+      {/* Spotlight Effect (Optimized) */}
       <div 
         className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
         style={{
-          background: `radial-gradient(400px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(255,255,255,0.06), transparent 60%)`
+          background: `radial-gradient(400px circle at var(--mouse-x, 0) var(--mouse-y, 0), var(--spotlight), transparent 60%)`
         }}
       />
       
-      <div className="relative z-10 w-16 h-16 rounded-2xl bg-foreground/[0.03] flex items-center justify-center mb-8 group-hover:bg-foreground group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(0,0,0,0.1)] transition-all duration-500 ease-[0.16,1,0.3,1]">
-        <f.icon className="w-6 h-6 text-foreground group-hover:text-white transition-colors" strokeWidth={1.5} />
+      <div className="relative z-10 w-16 h-16 rounded-2xl bg-foreground/[0.03] flex items-center justify-center mb-8 group-hover:bg-foreground group-hover:scale-110 transition-all duration-500 luxury-ease">
+        <f.icon className="w-6 h-6 text-foreground group-hover:text-background transition-colors" strokeWidth={1.5} />
       </div>
       <h3 className="relative z-10 font-bold text-xl tracking-tight mb-4 group-hover:text-foreground/90 transition-colors">{f.title}</h3>
       <p className="relative z-10 text-muted text-[15px] leading-relaxed font-medium opacity-70 group-hover:opacity-100 transition-opacity">{f.desc}</p>
     </motion.div>
   );
-}
+});
+
+TactileCard.displayName = "TactileCard";
 
 export function FeaturesSection() {
   const containerRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(false);
   const isInView = useInView(containerRef, { once: true, margin: "-100px" });
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -68,16 +82,18 @@ export function FeaturesSection() {
     <section id="features" ref={containerRef} className="relative px-6 lg:px-12 py-32 bg-background overflow-hidden">
       
       {/* Atmospheric Layering (Optimized) */}
-      <div className="absolute inset-0 pointer-events-none z-0">
-        <motion.div 
-          style={{ y: y1, willChange: "transform" }}
-          className="absolute top-[10%] right-[-10%] w-[600px] h-[600px] bg-foreground/[0.01] blur-[100px] rounded-full" 
-        />
-        <motion.div 
-          style={{ y: y2, willChange: "transform" }}
-          className="absolute bottom-[-10%] left-[-10%] w-[800px] h-[800px] bg-foreground/[0.005] blur-[80px] rounded-full" 
-        />
-      </div>
+      {!isMobile && (
+        <div className="absolute inset-0 pointer-events-none z-0">
+          <motion.div 
+            style={{ y: y1, willChange: "transform" }}
+            className="absolute top-[10%] right-[-10%] w-[600px] h-[600px] bg-foreground/[0.008] blur-[100px] rounded-full" 
+          />
+          <motion.div 
+            style={{ y: y2, willChange: "transform" }}
+            className="absolute bottom-[-10%] left-[-10%] w-[800px] h-[800px] bg-foreground/[0.004] blur-[80px] rounded-full" 
+          />
+        </div>
+      )}
 
       <div className="max-w-[1400px] mx-auto relative z-10">
         <div className="grid lg:grid-cols-2 gap-20 lg:gap-32 items-start">

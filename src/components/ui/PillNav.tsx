@@ -78,21 +78,21 @@ const PillNav = ({
         const label = pill.querySelector('.pill-label');
         const white = pill.querySelector('.pill-label-hover');
 
-        if (label) gsap.set(label, { y: 0 });
-        if (white) gsap.set(white, { y: h + 12, opacity: 0 });
+        if (label) gsap.set(label, { y: 0, force3D: true });
+        if (white) gsap.set(white, { y: h + 12, opacity: 0, force3D: true });
 
         tlRefs.current[index]?.kill();
-        const tl = gsap.timeline({ paused: true });
+        const tl = gsap.timeline({ paused: true, defaults: { ease, duration: 0.4 } });
 
-        tl.to(circle, { scale: 1.2, xPercent: -50, duration: 2, ease, overwrite: 'auto' }, 0);
+        tl.to(circle, { scale: 1.2, xPercent: -50, overwrite: 'auto' }, 0);
 
         if (label) {
-          tl.to(label, { y: -(h + 8), duration: 2, ease, overwrite: 'auto' }, 0);
+          tl.to(label, { y: -(h + 8), overwrite: 'auto' }, 0);
         }
 
         if (white) {
-          gsap.set(white, { y: Math.ceil(h + 100), opacity: 0 });
-          tl.to(white, { y: 0, opacity: 1, duration: 2, ease, overwrite: 'auto' }, 0);
+          gsap.set(white, { y: Math.ceil(h + 20), opacity: 0 }); // Reduced gap
+          tl.to(white, { y: 0, opacity: 1, overwrite: 'auto' }, 0);
         }
 
         tlRefs.current[index] = tl;

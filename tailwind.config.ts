@@ -5,18 +5,19 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
-        background: "#050505", // Deep cinematic black
-        card: "#0A0A0A",
-        foreground: "#F8F8F8", // Soft off-white for text
-        muted: "#86868B", // Apple-style muted grey
-        border: "rgba(0,0,0,0.04)",
-        accent: "#000000",
+        background: "var(--background)",
+        card: "var(--card)",
+        foreground: "var(--foreground)",
+        muted: "var(--muted)",
+        border: "var(--border)",
+        accent: "var(--accent)",
         success: "#2DD4BF",
         warning: "#F59E0B",
-        danger: "#FF3B30", // San Francisco style red
+        danger: "#FF3B30",
       },
       fontFamily: {
         sans: ["var(--font-inter)", "SF Pro Display", "system-ui", "sans-serif"],

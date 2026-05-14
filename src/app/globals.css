@@ -7,28 +7,96 @@
 @layer base {
   :root {
     --font-inter: 'Inter', system-ui, sans-serif;
+    
+    /* Light Mode - Luxury Showroom Aesthetic */
+    --background: #FFFFFF;
+    --card: #F8F8F8;
+    --foreground: #0A0A0A;
+    --muted: #86868B;
+    --border: rgba(0, 0, 0, 0.08);
+    --accent: #000000;
+    --selection-bg: rgba(0, 0, 0, 0.08);
+    --selection-color: #000000;
+    --scrollbar-thumb: rgba(0, 0, 0, 0.15);
+    --scrollbar-thumb-hover: rgba(0, 0, 0, 0.25);
+    --spotlight: rgba(0, 0, 0, 0.03);
   }
-  * { @apply border-border; }
+
+  .dark {
+    /* Dark Mode - Cinematic Automotive Aesthetic */
+    --background: #050505;
+    --card: #0A0A0A;
+    --foreground: #F8F8F8;
+    --muted: rgba(255, 255, 255, 0.5);
+    --border: rgba(255, 255, 255, 0.08);
+    --accent: #FFFFFF;
+    --selection-bg: rgba(255, 255, 255, 0.15);
+    --selection-color: #FFFFFF;
+    --scrollbar-thumb: rgba(255, 255, 255, 0.15);
+    --scrollbar-thumb-hover: rgba(255, 255, 255, 0.25);
+    --spotlight: rgba(255, 255, 255, 0.06);
+  }
+
+  * { 
+    @apply border-border; 
+    /* Narrow transition targets to avoid expensive layout property watches */
+    transition-property: background-color, border-color, color, fill, stroke, opacity;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    transition-duration: 600ms;
+  }
+  
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
   }
-  ::selection { background-color: rgba(255, 255, 255, 0.1); color: white; }
+
+  ::selection { 
+    background-color: var(--selection-bg); 
+    color: var(--selection-color); 
+  }
 }
 
 @layer utilities {
   .text-balance { text-wrap: balance; }
   .luxury-ease { transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
-  .shadow-soft { box-shadow: 0 4px 20px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.1); }
-  .shadow-elevated { box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 10px 20px rgba(0,0,0,0.2); }
-  .bg-glass { @apply backdrop-blur-md bg-white/[0.03] border border-white/10; }
-  .text-muted { @apply text-white/50; }
+  
+  .gpu-accelerated {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+  
+  .shadow-soft { 
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05); 
+  }
+  .dark .shadow-soft { 
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4); 
+  }
+  
+  .shadow-elevated { 
+    box-shadow: 0 20px 50px rgba(0,0,0,0.08); 
+  }
+  .dark .shadow-elevated { 
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
+  }
+  
+  /* Optimized Glassmorphism - Smarter Blur */
+  .bg-glass { 
+    @apply backdrop-blur-sm bg-white/40 border border-black/5; 
+  }
+  .dark .bg-glass { 
+    @apply backdrop-blur-sm bg-white/[0.02] border border-white/5; 
+  }
+  
+  .text-muted { @apply text-[color:var(--muted)]; }
 }
 
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 100px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 100px; }
+::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
 
 @keyframes grain {
   0%, 100% { transform: translate3d(0, 0, 0); }

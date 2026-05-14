@@ -37,9 +37,9 @@ export function Navbar() {
         items={items}
         activeHref={pathname}
         baseColor="transparent"
-        pillColor="#000000"
-        pillTextColor="#ffffff"
-        hoveredPillTextColor="#000000"
+        pillColor="var(--foreground)"
+        pillTextColor="var(--background)"
+        hoveredPillTextColor="var(--foreground)"
         className="mt-6"
         initialLoadAnimation={true}
       />
