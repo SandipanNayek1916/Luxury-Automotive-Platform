@@ -155,17 +155,17 @@ export function CinematicLoader() {
 
           <div ref={brandingRef} className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-6">
             <div className="overflow-hidden mb-5">
-              <p className="loader-subtitle text-black/60 tracking-[0.5em] text-[10px] font-semibold uppercase">PREMIUM MOBILITY EXPERIENCE</p>
+              <p className="loader-subtitle text-black/60 tracking-[0.5em] text-[10px] font-semibold uppercase">UNIQUE — ELITE AUTOMOTIVE EXPERIENCES</p>
             </div>
             <h1 className="text-4xl sm:text-6xl font-extralight tracking-tight text-[#0A0A0A] mb-5 uppercase leading-none flex gap-3 sm:gap-4">
-              <div className="overflow-hidden"><span className="loader-title-word block">DRIVE</span></div>
-              <div className="overflow-hidden"><span className="loader-title-word block">BEYOND</span></div>
-              <div className="overflow-hidden"><span className="loader-title-word block font-semibold">ORDINARY</span></div>
+              <div className="overflow-hidden"><span className="loader-title-word block">EXPERIENCE</span></div>
+              <div className="overflow-hidden"><span className="loader-title-word block">ABSOLUTE</span></div>
+              <div className="overflow-hidden"><span className="loader-title-word block font-semibold">PERFECTION</span></div>
             </h1>
             <div className="flex items-center gap-4 mb-10">
               <div className="loader-line w-10 h-px bg-black/15 origin-left" />
               <div className="overflow-hidden">
-                <p className="loader-status text-black/40 tracking-[0.2em] text-[10px] font-medium uppercase">Loading elite automotive collection</p>
+                <p className="loader-status text-black/40 tracking-[0.2em] text-[10px] font-medium uppercase">Curating exclusive hypercar collection</p>
               </div>
               <div className="loader-line w-10 h-px bg-black/15 origin-right" />
             </div>
@@ -175,7 +175,7 @@ export function CinematicLoader() {
           </div>
 
           <div ref={metricsRef} className="absolute left-6 md:left-12 top-1/2 -translate-y-1/2 hidden sm:flex flex-col gap-5 z-10" style={{ opacity: 0 }}>
-            {["SYSTEMS NOMINAL", "AWD ACTIVE", "AERO DEPLOYED", "TELEMETRY SYNCED"].map((label, i) => (
+            {["INVENTORY SYNCHRONIZED", "CONCIERGE ACTIVE", "FLEET PREPARED", "ACCESS GRANTED"].map((label, i) => (
               <div key={i} className="loader-metric-item flex items-center gap-3">
                 <div className="relative w-1.5 h-1.5 rounded-full bg-black/70" />
                 <span className="text-[9px] tracking-[0.28em] text-black/60 font-semibold uppercase whitespace-nowrap">{label}</span>
