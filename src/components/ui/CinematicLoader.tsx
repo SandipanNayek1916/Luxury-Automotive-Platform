@@ -7,12 +7,12 @@ import Image from "next/image";
 import gsap from "gsap";
 import { useCinematicBridge } from "@/lib/cinematic-bridge";
 
-const INTRO_DURATION_MS = 5000;
+const INTRO_DURATION_MS = 9500;
 const VIDEO_SRC = "/videos/aventador-svj-loading.mp4";
 
 export function CinematicLoader() {
   const [localIsExiting, setLocalIsExiting] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
 
   const { isVisible, setIsVisible, signalLoaderExiting } = useCinematicBridge();
 
@@ -140,7 +140,7 @@ export function CinematicLoader() {
         >
           <div ref={sweepRef} className="absolute inset-0 pointer-events-none z-30 opacity-0" style={{ background: "linear-gradient(105deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)", willChange: "transform, opacity", transform: "translate3d(-110%, 0, 0)" }} />
           
-          <video ref={videoRef} src={VIDEO_SRC} playsInline loop muted preload="auto" className="absolute inset-0 w-full h-full object-cover opacity-0 scale-[1.02]" style={{ willChange: "opacity, transform", transform: "translate3d(0,0,0)" }} />
+          <video ref={videoRef} src={VIDEO_SRC} playsInline loop muted={isMuted} preload="auto" className="absolute inset-0 w-full h-full object-cover opacity-0 scale-[1.02]" style={{ willChange: "opacity, transform", transform: "translate3d(0,0,0)" }} />
 
           <div ref={gradientOverlayRef} className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to bottom, rgba(242,240,237,0.7) 0%, transparent 40%, rgba(242,240,237,0.8) 100%)" }} />
           <div ref={vignetteRef} className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at center, transparent 40%, rgba(242,240,237,0.5) 100%)" }} />

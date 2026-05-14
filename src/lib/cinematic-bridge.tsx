@@ -26,10 +26,11 @@ export function CinematicBridgeProvider({ children }: { children: ReactNode }) {
 
   // Initialize visibility from localStorage on mount
   useEffect(() => {
-    if (typeof window !== "undefined" && localStorage.getItem("unique_loader_seen")) {
-      setIsVisible(false);
-      setLoaderExiting(true);
-    }
+    // Temporarily disabled to allow viewing the loader every time
+    // if (typeof window !== "undefined" && localStorage.getItem("unique_loader_seen")) {
+    //   setIsVisible(false);
+    //   setLoaderExiting(true);
+    // }
   }, []);
 
   const signalLoaderExiting = useCallback(() => {
