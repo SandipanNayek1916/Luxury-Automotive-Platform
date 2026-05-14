@@ -9,7 +9,6 @@ import { GlobalAtmosphere } from "@/components/ui/GlobalAtmosphere";
 import { SmoothScroll } from "@/components/ui/SmoothScroll";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ThemeProvider } from "@/components/theme-provider";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
@@ -45,12 +44,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
       <body className="font-sans">
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+        <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false}>
           <SmoothScroll>
             <Providers>
               <GlobalAtmosphere />
               <CinematicLoader />
-              <ThemeToggle />
               <Navbar />
               {children}
               <Toaster position="top-center" toastOptions={{
